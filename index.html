@@ -1,0 +1,1852 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>تحدي الكلمات المتقاطعة</title>
+    <meta
+      name="description"
+      content="تحدي الكلمات المتقاطعة - ابحث عن الكلمات المخفية في شبكة النيون ونافس أصدقائك في 100 مستوى ممتع."
+    />
+
+    <!-- وسوم Meta للنشر على فيسبوك (Open Graph) -->
+    <meta property="og:title" content="تحدي الكلمات المتقاطعة" />
+    <meta
+      property="og:description"
+      content="ابحث عن الكلمات المخفية في شبكة النيون! هل يمكنك العثور عليها جميعاً في أسرع وقت؟"
+    />
+    <meta
+      property="og:image"
+      content="https://example.com/your-game-thumbnail.jpg"
+    />
+    <!-- ضع رابط صورة لعبتك هنا -->
+    <meta property="og:url" content="https://your-game-url.com" />
+    <!-- ضع رابط موقع اللعبة هنا -->
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ar_AR" />
+    <meta property="fb:app_id" content="YOUR_FB_APP_ID" />
+    <!-- اختياري: معرف تطبيق فيسبوك -->
+
+    <!-- وسوم Meta لتويتر (Twitter Cards) -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="تحدي الكلمات المتقاطعة" />
+    <meta
+      name="twitter:description"
+      content="ابحث عن الكلمات المخفية في شبكة النيون! هل يمكنك العثور عليها جميعاً في أسرع وقت؟"
+    />
+    <meta
+      name="twitter:image"
+      content="https://example.com/your-game-thumbnail.jpg"
+    />
+
+    <!-- روابط PWA -->
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#00f2fe" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+
+    <!-- مكتبة ألعاب فيسبوك الفورية (Instant Games SDK) -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Tajawal", sans-serif;
+        background: radial-gradient(circle at center, #1a1a2e 0%, #0a0a12 100%);
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 80vh;
+        margin: 0;
+        padding: 20px;
+        overflow-x: hidden;
+      }
+      .scoreboard {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 15px;
+        font-size: 1rem;
+        animation: fadeInDown 0.8s ease-out;
+      }
+      .score-item {
+        text-align: center;
+        background: rgba(255, 255, 255, 0.03);
+        padding: 10px 20px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        transition: transform 0.3s ease;
+      }
+      .score-item:hover {
+        transform: translateY(-3px);
+      }
+      .high-scoreboard {
+        margin-top: 10px;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        padding-top: 10px;
+      }
+      .high-scoreboard .score-item {
+        background: rgba(0, 242, 254, 0.05);
+        border: 1px solid rgba(0, 242, 254, 0.1);
+        color: #00f2fe;
+        box-shadow: 0 0 10px rgba(0, 242, 254, 0.1);
+      }
+      .mode-selector {
+        margin-bottom: 20px;
+        display: flex;
+        gap: 10px;
+        animation: fadeInDown 1s ease-out;
+      }
+      .mode-option {
+        padding: 8px 18px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        cursor: pointer;
+        transition: 0.3s;
+        font-size: 0.9rem;
+      }
+      .mode-option.active {
+        background: #00f2fe;
+        color: #0f0f1a;
+        border-color: #00f2fe;
+        box-shadow: 0 0 15px rgba(0, 242, 254, 0.4);
+      }
+
+      /* استعادة التنسيقات المفقودة لإخفاء العناصر غير المستخدمة حالياً */
+      .online-controls {
+        display: none;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 20px;
+        background: rgba(255, 255, 255, 0.02);
+        padding: 15px;
+        border-radius: 15px;
+        border: 1px solid rgba(0, 242, 254, 0.2);
+        width: min(350px, 100%);
+      }
+      .online-controls input {
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 8px;
+        border-radius: 5px;
+        text-align: center;
+      }
+      .peer-id-display {
+        font-size: 0.8rem;
+        color: #00f2fe;
+      }
+      .peer-id-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        justify-content: center;
+        margin-top: 5px;
+      }
+      .mini-btn {
+        padding: 4px 10px;
+        font-size: 0.7rem;
+        background: rgba(0, 242, 254, 0.2);
+        border: 1px solid #00f2fe;
+        color: #00f2fe;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      .difficulty-selector {
+        margin-bottom: 15px;
+        display: none;
+        gap: 10px;
+      }
+      .difficulty-option {
+        padding: 5px 15px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        transition: 0.3s;
+      }
+      .chat-container {
+        display: none;
+        width: min(350px, 100%);
+        margin-top: 15px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        overflow: hidden;
+      }
+      .chat-history {
+        height: 100px;
+        overflow-y: auto;
+        padding: 10px;
+        font-size: 0.85rem;
+        text-align: right;
+      }
+
+      /* New styles for word list */
+      .words-to-find {
+        margin-top: 20px;
+        text-align: center;
+        font-size: 1.1rem;
+        color: #fff;
+        animation: fadeInUp 1.2s ease-out;
+      }
+      .words-to-find p {
+        margin-bottom: 10px;
+        color: #00f2fe;
+        text-shadow: 0 0 8px #00f2fe;
+      }
+      .words-to-find ul {
+        list-style: none;
+        padding: 0;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        max-width: 100%;
+      }
+      .words-to-find li {
+        background: rgba(255, 255, 255, 0.03);
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        transition:
+          background 0.3s ease,
+          color 0.3s ease;
+        font-weight: bold;
+        color: #fff;
+      }
+      .words-to-find li.found {
+        background: #ff007f; /* Pink for found words */
+        color: #0f0f1a;
+        text-decoration: line-through;
+        border-color: #ff007f;
+        box-shadow: 0 0 10px rgba(255, 0, 127, 0.4);
+      }
+
+      h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        text-shadow: 0 0 20px rgba(0, 242, 254, 0.5);
+        color: #00f2fe;
+        letter-spacing: 1px;
+        animation: fadeInDown 0.6s ease-out;
+      }
+
+      .game-container {
+        background: rgba(255, 255, 255, 0.01);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 20px;
+        padding: 25px;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        max-width: 100%;
+        animation: fadeInUp 0.8s ease-out;
+      }
+
+      .status-box {
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+        padding: 10px 20px;
+        border-radius: 30px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        text-align: center;
+        min-width: 250px;
+      }
+      .status-box span {
+        font-weight: bold;
+        text-shadow: 0 0 8px currentColor;
+      }
+      .board {
+        display: grid;
+        gap: 8px;
+        width: min(500px, 95vw);
+        aspect-ratio: 1 / 1;
+        margin: 0 auto;
+        animation: zoomIn 0.5s ease-out;
+      }
+      .cell {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 8px; /* Adjusted for larger grid */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: clamp(0.7rem, 3.5vw, 1.6rem);
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.25s ease-in-out;
+        user-select: none;
+      }
+      .cell:hover {
+        background: rgba(255, 255, 255, 0.07);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      }
+
+      /* Removed .cell.X and .cell.O as it's not XO anymore */
+      .cell.selected {
+        /* New style for currently selected letters */
+        background: linear-gradient(
+          135deg,
+          rgba(0, 242, 254, 0.6) 0%,
+          rgba(0, 242, 254, 0.1) 50%,
+          rgba(0, 242, 254, 0.4) 100%
+        );
+        border-color: #00f2fe;
+        color: #fff;
+        text-shadow: 0 0 12px #00f2fe;
+        box-shadow:
+          inset 0 0 20px rgba(0, 242, 254, 0.5),
+          0 0 15px rgba(0, 242, 254, 0.3);
+      }
+      .cell.found-word {
+        /* Style for letters of a found word */
+        background: linear-gradient(
+          135deg,
+          rgba(255, 0, 127, 0.6) 0%,
+          rgba(255, 0, 127, 0.2) 50%,
+          rgba(255, 0, 127, 0.5) 100%
+        );
+        border-color: #ff007f;
+        color: #fff;
+        text-shadow: 0 0 12px #ff007f;
+        box-shadow:
+          inset 0 0 20px rgba(255, 0, 127, 0.5),
+          0 0 15px rgba(255, 0, 127, 0.3);
+        animation: pulseWinning 1s infinite alternate;
+      }
+
+      .reset-btn {
+        margin-top: 25px;
+        padding: 12px 30px;
+        font-size: 1.1rem;
+        background: transparent;
+        color: #00f2fe;
+        border: 2px solid #00f2fe;
+        border-radius: 30px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 10px rgba(0, 242, 254, 0.2);
+      }
+      .reset-btn:hover {
+        background: #00f2fe;
+        color: #0f0f1a;
+        box-shadow: 0 0 20px rgba(0, 242, 254, 0.6);
+        transform: translateY(-2px);
+      }
+      @keyframes pulseWinning {
+        from {
+          transform: scale(1);
+          box-shadow: 0 0 10px rgba(255, 0, 127, 0.3);
+        } /* Adjusted for found words */
+        to {
+          transform: scale(1.05);
+          box-shadow: 0 0 25px rgba(255, 0, 127, 0.6);
+        }
+      }
+      @keyframes fadeInDown {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @keyframes zoomIn {
+        from {
+          opacity: 0;
+          transform: scale(0.9);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+      /* تأثير الاهتزاز عند الخطأ */
+      @keyframes shake {
+        0% {
+          transform: translateX(0);
+        }
+        20% {
+          transform: translateX(-10px);
+        }
+        40% {
+          transform: translateX(10px);
+        }
+        60% {
+          transform: translateX(-10px);
+        }
+        80% {
+          transform: translateX(10px);
+        }
+        100% {
+          transform: translateX(0);
+        }
+      }
+      .shake {
+        animation: shake 0.3s ease-in-out;
+      }
+      /* تنسيق خلفية الجزيئات */
+      #particles-canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1; /* خلف جميع العناصر */
+        pointer-events: none;
+        background: transparent;
+      }
+
+      /* تنسيق لوحة المتصدرين (Modal) */
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(5px);
+      }
+      .modal-content {
+        background: #1a1a2e;
+        margin: 10% auto;
+        padding: 20px;
+        border: 1px solid #00f2fe;
+        border-radius: 20px;
+        width: min(400px, 90%);
+        box-shadow: 0 0 30px rgba(0, 242, 254, 0.2);
+        text-align: center;
+      }
+      .leaderboard-list {
+        list-style: none;
+        padding: 0;
+        margin-top: 20px;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+      .leaderboard-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .leaderboard-item img {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        border: 1px solid #00f2fe;
+      }
+      .close-modal {
+        float: left;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #ff007f;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header-container">
+      <h1 id="gameTitle">تحدي الكلمات المتقاطعة</h1>
+    </div>
+
+    <div class="mode-selector">
+      <div class="mode-option active" id="modePVP">ابدأ اللعب</div>
+      <div
+        class="mode-option"
+        id="hintBtn"
+        style="border-color: #ffea00; color: #ffea00"
+      >
+        تلميحة 💡
+      </div>
+      <div
+        class="mode-option"
+        id="showLeaderboardBtn"
+        style="border-color: #00f2fe; color: #00f2fe"
+      >
+        الأوائل 🏆
+      </div>
+      <div
+        class="mode-option"
+        id="shareFB"
+        style="background: #1877f2; color: white"
+      >
+        نشر النتيجة 🔵
+      </div>
+      <div
+        class="mode-option"
+        id="inviteBtn"
+        style="background: #25d366; color: white; border-color: #25d366"
+      >
+        تحدي صديق ✉️
+      </div>
+      <div
+        class="mode-option"
+        id="installBtn"
+        style="display: none; border-color: #00f2fe; color: #00f2fe"
+      >
+        تثبيت اللعبة 📱
+      </div>
+    </div>
+
+    <div
+      id="levelIndicator"
+      style="
+        margin-bottom: 10px;
+        color: #00f2fe;
+        font-weight: bold;
+        font-size: 1.3rem;
+      "
+    >
+      المستوى: <span id="currentLevelNum">1</span> / 100
+    </div>
+
+    <div class="words-to-find">
+      <p>ابحث عن الكلمات التالية:</p>
+      <ul id="wordList">
+        <!-- Words will be added here by JS -->
+      </ul>
+    </div>
+
+    <div class="game-container">
+      <div class="status-box" id="statusBox" style="min-width: 250px">
+        <span id="currentSelectionDisplay">ابدأ باختيار الحروف</span>
+      </div>
+      <div
+        id="timerDisplay"
+        style="
+          margin-bottom: 15px;
+          font-weight: bold;
+          color: #ff007f;
+          font-size: 1.2rem;
+        "
+      >
+        الوقت: 00:00
+      </div>
+
+      <div class="board" id="board">
+        <!-- الحروف سيتم توليدها برمجياً -->
+      </div>
+
+      <button class="reset-btn" id="resetBtn">إعادة اللعب ↻</button>
+    </div>
+
+    <!-- نافذة لوحة المتصدرين -->
+    <div id="leaderboardModal" class="modal">
+      <div class="modal-content">
+        <span class="close-modal" id="closeLeaderboard">&times;</span>
+        <h2 style="color: #00f2fe">أبطال التحدي 🏆</h2>
+        <ul id="leaderboardEntries" class="leaderboard-list"></ul>
+      </div>
+    </div>
+
+    <!-- عناصر الصوت -->
+    <audio
+      id="winSound"
+      src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3"
+    ></audio>
+    <audio
+      id="loseSound"
+      src="https://assets.mixkit.co/active_storage/sfx/2017/2017-preview.mp3"
+    ></audio>
+    <audio
+      id="clickSound"
+      src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"
+    ></audio>
+    <audio
+      id="typingSound"
+      src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"
+    ></audio>
+
+    <!-- أصوات المراكز في لوحة المتصدرين -->
+    <audio
+      id="goldSFX"
+      src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3"
+    ></audio>
+    <audio
+      id="silverSFX"
+      src="https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3"
+    ></audio>
+    <audio
+      id="bronzeSFX"
+      src="https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3"
+    ></audio>
+
+    <!-- مكتبة ألعاب فيسبوك الفورية -->
+    <script src="https://connect.facebook.net/en_US/fbinstant.7.1.js"></script>
+
+    <!-- مكتبة Confetti للرسوم المتحركة -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+    <script type="text/javascript">
+      //<![CDATA[
+      let fbGameStarted = false; // متغير للتحقق من جاهزية فيسبوك
+      let rewardedVideoAd = null; // متغير لتخزين الإعلان
+
+      // نظام محاكاة فيسبوك للاختبار على المتصفح العادي
+      if (typeof FBInstant === "undefined") {
+        console.warn(
+          "تنبيه: تعمل اللعبة في وضع المحاكاة (Mock Mode) خارج بيئة فيسبوك.",
+        );
+        window.FBInstant = {
+          initializeAsync: () => Promise.resolve(),
+          setLoadingProgress: (p) => console.log(`تحميل فيسبوك: ${p}%`),
+          startGameAsync: () => {
+            fbGameStarted = true;
+            return Promise.resolve();
+          },
+          getLeaderboardAsync: (name) =>
+            Promise.resolve({
+              getName: () => name,
+              setScoreAsync: (s, d) => {
+                console.log(`تم حفظ النتيجة وهمياً: ${s}`);
+                return Promise.resolve();
+              },
+              getEntriesAsync: (count, offset) =>
+                Promise.resolve([
+                  {
+                    getRank: () => 1,
+                    getScore: () => 5000,
+                    getPlayer: () => ({
+                      getName: () => "لاعب تجريبي 1",
+                      getPhoto: () => "https://via.placeholder.com/35",
+                    }),
+                  },
+                  {
+                    getRank: () => 2,
+                    getScore: () => 8000,
+                    getPlayer: () => ({
+                      getName: () => "لاعب تجريبي 2",
+                      getPhoto: () => "https://via.placeholder.com/35",
+                    }),
+                  },
+                  {
+                    getRank: () => 3,
+                    getScore: () => 12000,
+                    getPlayer: () => ({
+                      getName: () => "لاعب تجريبي 3",
+                      getPhoto: () => "https://via.placeholder.com/35",
+                    }),
+                  },
+                ]),
+            }),
+          player: {
+            getName: () => "مطور محلي",
+            getPhoto: () => "https://via.placeholder.com/35",
+            getID: () => "12345",
+          },
+          shareAsync: (conf) => {
+            console.log("طلب مشاركة:", conf);
+            return Promise.resolve();
+          },
+        };
+      }
+
+      // تهيئة فيسبوك
+      FBInstant.initializeAsync().then(function () {
+        FBInstant.setLoadingProgress(100);
+        FBInstant.startGameAsync().then(function () {
+          console.log("FB Game Started Ready");
+          fbGameStarted = true;
+          // تحميل الإعلان مسبقاً عند بدء اللعبة
+          loadRewardedVideoAd();
+        });
+      });
+
+      function loadRewardedVideoAd() {
+        if (typeof FBInstant === "undefined" || !fbGameStarted) return;
+
+        FBInstant.getRewardedVideoAsync("YOUR_AD_UNIT_ID") // استبدل YOUR_AD_UNIT_ID بمعرف الإعلان من لوحة تحكم فيسبوك
+          .then((ad) => {
+            rewardedVideoAd = ad;
+            return rewardedVideoAd.loadAsync();
+          })
+          .then(() => console.log("Rewarded Video loaded and ready"))
+          .catch((err) => console.error("Ad failed to load", err));
+      }
+
+      function showAdForHint() {
+        if (rewardedVideoAd) {
+          rewardedVideoAd
+            .showAsync()
+            .then(() => {
+              // الإعلان انتهى بنجاح، امنح المكافأة
+              giveHint();
+              // تحميل إعلان جديد للمرة القادمة
+              loadRewardedVideoAd();
+            })
+            .catch((err) => {
+              console.error("Ad failed to show", err);
+              alert("عذراً، لم يكتمل الإعلان.");
+            });
+        } else {
+          // إذا لم يتوفر إعلان، امنح التلميحة مجاناً أو أظهر رسالة
+          giveHint();
+          loadRewardedVideoAd();
+        }
+      }
+
+      const boardElement = document.getElementById("board");
+      const statusBox = document.getElementById("statusBox");
+      const resetBtn = document.getElementById("resetBtn");
+      const hintBtn = document.getElementById("hintBtn");
+      const wordListElement = document.getElementById("wordList");
+      let currentSelectionDisplay = document.getElementById(
+        "currentSelectionDisplay",
+      );
+
+      // مراجع الملفات الصوتية
+      const winSound = document.getElementById("winSound");
+      const loseSound = document.getElementById("loseSound");
+      const clickSound = document.getElementById("clickSound");
+
+      // إصلاح: تعريف متغيرات الأرقام القياسية المفقودة
+      let highScores = { X: 0, O: 0, draws: 0 };
+
+      function saveHighScores() {
+        localStorage.setItem(
+          "wordChallengeHighScores",
+          JSON.stringify(highScores),
+        );
+      }
+
+      function loadHighScores() {
+        const saved = localStorage.getItem("wordChallengeHighScores");
+        if (saved) {
+          highScores = JSON.parse(saved);
+        }
+      }
+
+      const arabicLetters = "ابتثجحخدذرزسشصضطظعغفقكلمنهوي";
+
+      const fullWordBank = [
+        // دول ومدن
+        "مصر",
+        "لبنان",
+        "عراق",
+        "سوريا",
+        "اردن",
+        "يمن",
+        "قطر",
+        "كويت",
+        "جزائر",
+        "تونس",
+        "مغرب",
+        "سودان",
+        "فلسطين",
+        "صومال",
+        "ليبيا",
+        "موريتانيا",
+        "جيبوتي",
+        "عمان",
+        "بحرين",
+        "سعودية",
+        "امارات",
+        "قاهرة",
+        "دمشق",
+        "بغداد",
+        "رياض",
+        "بيروت",
+        "قدس",
+        "عمان",
+        "دوحة",
+        "منامة",
+        "مسقط",
+        "عدن",
+        "صنعاء",
+        "طرابلس",
+        "خرطوم",
+        "رباط",
+        "نواكشوط",
+        "مكة",
+        "جدة",
+        "دبي",
+        "شارقة",
+        "حلب",
+        "بصرة",
+        "موصل",
+        "إسكندرية",
+        "طنجة",
+        "فاس",
+        // فواكه وخضروات
+        "تفاح",
+        "موز",
+        "عنب",
+        "مانجو",
+        "خوخ",
+        "كرز",
+        "رمان",
+        "توت",
+        "تين",
+        "ليمون",
+        "اناناس",
+        "فراولة",
+        "بطيخ",
+        "برتقال",
+        "كيوي",
+        "جوافة",
+        "مشمش",
+        "كمثرى",
+        "تمر",
+        "جوز",
+        "لوز",
+        "بندق",
+        "فستق",
+        "جزر",
+        "خيار",
+        "طماطم",
+        "بصل",
+        "ثوم",
+        "بطاطس",
+        "باذنجان",
+        "كوسة",
+        "فلفل",
+        "خس",
+        "جرجير",
+        "نعناع",
+        "بقدونس",
+        "كزبرة",
+        "كرنب",
+        "قرنبيط",
+        "فجل",
+        "شمندر",
+        "بامية",
+        "فاصوليا",
+        "عدس",
+        "حمص",
+        "فول",
+        // حيوانات وطيور
+        "اسد",
+        "نمر",
+        "فهد",
+        "ذئب",
+        "ثعلب",
+        "ارنب",
+        "حصان",
+        "جمل",
+        "زرافة",
+        "فيل",
+        "غزال",
+        "قرد",
+        "صقر",
+        "نسر",
+        "غراب",
+        "هدهد",
+        "بلبل",
+        "عصفور",
+        "حمامة",
+        "ببغاء",
+        "بطة",
+        "وزة",
+        "دجاجة",
+        "ديك",
+        "تمساح",
+        "ثعبان",
+        "حوت",
+        "قرش",
+        "دلفين",
+        "اخطبوط",
+        "سلحفاة",
+        "ضفدع",
+        "نملة",
+        "نحلة",
+        "فراشة",
+        "عنكبوت",
+        "عقرب",
+        "كلب",
+        "قطة",
+        "ماعز",
+        "خروف",
+        "بقر",
+        "ثور",
+        "حمار",
+        "بغض",
+        "كنغر",
+        "بطريق",
+        "نعامة",
+        // مهن ووظائف
+        "طبيب",
+        "مهندس",
+        "معلم",
+        "محامي",
+        "محاسب",
+        "طيار",
+        "جندي",
+        "شرطي",
+        "نجار",
+        "حداد",
+        "خياط",
+        "جزار",
+        "خباز",
+        "فلاح",
+        "صياد",
+        "رسام",
+        "كاتب",
+        "شاعر",
+        "صحفي",
+        "مذيع",
+        "مؤلف",
+        "مخرج",
+        "ممثل",
+        "مغني",
+        "عالم",
+        "باحث",
+        "مدير",
+        "وزير",
+        "سفير",
+        "قاضي",
+        "مبرمج",
+        "مصمم",
+        "غواص",
+        "طباخ",
+        "حلاق",
+        "بناء",
+        "كهربائي",
+        "سباك",
+        "ميكانيكي",
+        "سائق",
+        "طيار",
+        "ممرض",
+        "صيدلي",
+        "مدرب",
+        // أدوات منزلية وأثاث
+        "باب",
+        "شباك",
+        "كرسي",
+        "طاولة",
+        "كنبة",
+        "سرير",
+        "دولاب",
+        "سجادة",
+        "ستارة",
+        "مصباح",
+        "تلفاز",
+        "هاتف",
+        "حاسوب",
+        "ثلاجة",
+        "غسالة",
+        "فرن",
+        "مكواة",
+        "مكنسة",
+        "ملعقة",
+        "شوكة",
+        "سكين",
+        "طبق",
+        "كوب",
+        "إبريق",
+        "قدر",
+        "مقلاة",
+        "مقص",
+        "قلم",
+        "دفتر",
+        "كتاب",
+        "حقيبة",
+        "ساعة",
+        "نظارة",
+        "مفتاح",
+        "مرآة",
+        "فرشاة",
+        "منشفة",
+        "صابون",
+        "عطر",
+        "مشط",
+        "وسادة",
+        "لحاف",
+        // ألوان وصفات
+        "احمر",
+        "ازرق",
+        "اخضر",
+        "اصفر",
+        "ابيض",
+        "اسود",
+        "بني",
+        "رمادي",
+        "وردي",
+        "بنفسجي",
+        "برتقالي",
+        "ذهبي",
+        "فضي",
+        "كبير",
+        "صغير",
+        "طويل",
+        "قصير",
+        "واسع",
+        "ضيق",
+        "جميل",
+        "قبيح",
+        "سريع",
+        "بطيء",
+        "قوي",
+        "ضعيف",
+        "ذكي",
+        "غبي",
+        "سعيد",
+        "حزين",
+        "نظيف",
+        "متسخ",
+        "بارد",
+        "حار",
+        "جاف",
+        "رطب",
+        "ثقيل",
+        "خفيف",
+        "قديم",
+        "جديد",
+        "غالي",
+        "رخيص",
+        "صعب",
+        "سهل",
+        // طبيعة وعلوم
+        "شمس",
+        "قمر",
+        "نجم",
+        "سماء",
+        "ارض",
+        "بحر",
+        "نهر",
+        "جبل",
+        "وادي",
+        "غابة",
+        "صحراء",
+        "جزيرة",
+        "شلال",
+        "مطر",
+        "ثلج",
+        "رعد",
+        "برق",
+        "ريح",
+        "سحاب",
+        "شجر",
+        "ورد",
+        "زهر",
+        "عشب",
+        "حجر",
+        "رمل",
+        "طين",
+        "ذهب",
+        "حديد",
+        "نحاس",
+        "فضة",
+        "نفط",
+        "غاز",
+        "كهرباء",
+        "ذرة",
+        "خلية",
+        "دم",
+        "قلب",
+        "عقل",
+        "كبد",
+        "رئة",
+        "عين",
+        "اذن",
+        "انف",
+        "فم",
+        "يد",
+        "رجل",
+        // رياضة وتسلية
+        "كرة",
+        "هدف",
+        "ملعب",
+        "نادي",
+        "سباق",
+        "سباحة",
+        "رماية",
+        "فروسية",
+        "تنس",
+        "سلة",
+        "طائرة",
+        "قدم",
+        "ملاكمة",
+        "كاراتيه",
+        "شطرنج",
+        "لعبة",
+        "فوز",
+        "خسارة",
+        "تعادل",
+        "بطل",
+        "كأس",
+        "ميدالية",
+        "صفر",
+        "واحد",
+        "اثنان",
+        "ثلاثة",
+        "عشرة",
+        "مئة",
+        "الف",
+        "موسيقى",
+        "رقص",
+        "مسرح",
+        "سينما",
+        "رواية",
+        "قصة",
+        "لغز",
+        "نكتة",
+        "فرح",
+        "عيد",
+        "احتفال",
+        // كلمات إضافية متنوعة
+        "ايمان",
+        "امل",
+        "حق",
+        "خير",
+        "عدل",
+        "سلام",
+        "حب",
+        "وفاء",
+        "كرم",
+        "شجاعة",
+        "صدق",
+        "صبر",
+        "شكر",
+        "نور",
+        "ضياء",
+        "فجر",
+        "صباح",
+        "مساء",
+        "ليل",
+        "نهار",
+        "وقت",
+        "سنة",
+        "شهر",
+        "اسبوع",
+        "يوم",
+        "ساعة",
+        "دقيقة",
+        "ثانية",
+        "ماضي",
+        "حاضر",
+        "مستقبل",
+        "علم",
+        "ثقافة",
+        "فن",
+        "ادب",
+        "لغة",
+        "حكمة",
+        "عقل",
+        "فكر",
+        "روح",
+        "نفس",
+        "جسم",
+        "صحة",
+        "قوة",
+      ];
+
+      // توليد 100 مستوى برمجياً
+      const levels = [];
+      for (let i = 1; i <= 100; i++) {
+        // الصعوبة تزداد تدريجياً - تم تحسين حجم الشبكة لضمان نجاح توزيع الكلمات
+        let size = 6 + Math.floor(i / 20); // تبدأ من 6x6 وتصل إلى 11x11
+        let wordCount = 3 + Math.floor(i / 15); // من 3 إلى 9
+
+        // تحسين: اختيار كلمات تناسب حجم الشبكة فقط
+        let possibleWords = fullWordBank.filter((w) => w.length <= size);
+        let shuffled = possibleWords.sort(() => 0.5 - Math.random());
+
+        levels.push({
+          name: "مستوى " + i,
+          words: shuffled.slice(0, Math.min(wordCount, size + 2)),
+          gridSize: Math.min(size, 10),
+          maxAttempts: 100 + i,
+        });
+      }
+
+      // التحقق مما إذا كان المستخدم قد دخل عبر رابط تحدي
+      const urlParams = new URLSearchParams(window.location.search);
+      const challengeLevel = urlParams.get("challengeLevel");
+
+      let currentLevelIndex;
+      if (challengeLevel !== null && !isNaN(challengeLevel)) {
+        currentLevelIndex = parseInt(challengeLevel);
+      } else {
+        currentLevelIndex =
+          parseInt(localStorage.getItem("currentWordLevel")) || 0;
+      }
+
+      if (currentLevelIndex >= levels.length) currentLevelIndex = 0; // حماية من تجاوز عدد المستويات
+
+      let currentLevel = levels[currentLevelIndex];
+      let targetWords = [];
+      let foundWords = [];
+      let grid = []; // 1D array representing the grid letters
+      let currentSelection = "";
+      let currentPath = []; // Stores indices of selected cells
+      let isGameActive = false; // Game starts inactive until "Start" is clicked
+      let startTime;
+      let timerInterval;
+      let elapsedTime = 0;
+
+      function startTimer() {
+        if (timerInterval) return;
+        startTime = Date.now() - elapsedTime;
+        timerInterval = setInterval(() => {
+          elapsedTime = Date.now() - startTime;
+          updateTimerDisplay();
+        }, 1000);
+      }
+
+      function stopTimer() {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+
+      function resetTimer() {
+        stopTimer();
+        elapsedTime = 0;
+        updateTimerDisplay();
+      }
+
+      function updateTimerDisplay() {
+        const totalSeconds = Math.floor(elapsedTime / 1000);
+        const minutes = Math.floor(totalSeconds / 60)
+          .toString()
+          .padStart(2, "0");
+        const seconds = (totalSeconds % 60).toString().padStart(2, "0");
+        document.getElementById("timerDisplay").textContent =
+          `الوقت: ${minutes}:${seconds}`;
+      }
+
+      // وظيفة تفعيل تأثير الاهتزاز
+      function triggerShake() {
+        const container = document.querySelector(".game-container");
+        container.classList.add("shake");
+        loseSound.currentTime = 0; // إعادة ضبط الصوت للبدء فوراً
+        loseSound.play().catch(() => {}); // تشغيل صوت الخطأ
+        setTimeout(() => container.classList.remove("shake"), 300);
+      }
+
+      function getRandomLetter() {
+        return arabicLetters[Math.floor(Math.random() * arabicLetters.length)];
+      }
+
+      function placeWord(word, currentGrid, size) {
+        const directions = [
+          { dr: 0, dc: 1 }, // Horizontal
+          { dr: 1, dc: 0 }, // Vertical
+        ];
+        // إضافة الاتجاهات المائلة من المستوى الثالث فما فوق لزيادة التحدي
+        if (currentLevelIndex >= 2) {
+          directions.push({ dr: 1, dc: 1 });
+          directions.push({ dr: 1, dc: -1 });
+        }
+
+        for (let attempt = 0; attempt < currentLevel.maxAttempts; attempt++) {
+          const dir = directions[Math.floor(Math.random() * directions.length)];
+          const startRow = Math.floor(Math.random() * size);
+          const startCol = Math.floor(Math.random() * size);
+
+          let canPlace = true;
+          let path = [];
+
+          for (let i = 0; i < word.length; i++) {
+            const r = startRow + i * dir.dr;
+            const c = startCol + i * dir.dc;
+
+            if (r >= size || c >= size || r < 0 || c < 0) {
+              canPlace = false;
+              break;
+            }
+
+            const index = r * size + c;
+            if (currentGrid[index] !== "") {
+              canPlace = false;
+              break;
+            }
+            path.push(index);
+          }
+
+          if (canPlace) {
+            for (let i = 0; i < word.length; i++) {
+              currentGrid[path[i]] = word[i];
+            }
+            return path; // Return the indices where the word was placed
+          }
+        }
+        return null; // Could not place word
+      }
+
+      function initBoard() {
+        resetTimer();
+        foundWords = [];
+        currentSelection = "";
+        currentPath = [];
+        currentLevel = levels[currentLevelIndex]; // تحديث المستوى الحالي
+
+        // تمييز ما إذا كان هذا المستوى هو تحدي
+        if (urlParams.has("challengeLevel")) {
+          statusBox.innerHTML = `<span id="currentSelectionDisplay" style="color:#ffea00">لقد قبلت التحدي! المستوى ${currentLevelIndex + 1}</span>`;
+        } else {
+          statusBox.innerHTML =
+            '<span id="currentSelectionDisplay">ابدأ باختيار الحروف</span>';
+        }
+
+        currentSelectionDisplay = document.getElementById(
+          "currentSelectionDisplay",
+        ); // تحديث المرجع
+        document.getElementById("currentLevelNum").textContent =
+          currentLevelIndex + 1;
+        currentLevel = levels[currentLevelIndex];
+        hintBtn.style.opacity = "1";
+
+        // Initialize empty grid
+        grid = Array(currentLevel.gridSize * currentLevel.gridSize).fill("");
+        window.placedWordPaths = {}; // To store paths for hints
+        let placedWords = [];
+        let wordsToTry = [...currentLevel.words];
+
+        // Place target words
+        for (let word of wordsToTry) {
+          const path = placeWord(word, grid, currentLevel.gridSize);
+          if (path) {
+            window.placedWordPaths[word] = path;
+            placedWords.push(word);
+          } else {
+            // محاولة وضع كلمة بديلة أقصر إذا فشلت الكلمة الأصلية لضمان عدم خلو المستوى من الكلمات
+            const fallbackWord = fullWordBank
+              .filter((w) => w.length < currentLevel.gridSize)
+              .sort(() => 0.5 - Math.random())[0];
+            const fallbackPath = placeWord(
+              fallbackWord,
+              grid,
+              currentLevel.gridSize,
+            );
+            if (fallbackPath) {
+              window.placedWordPaths[fallbackWord] = fallbackPath;
+              placedWords.push(fallbackWord);
+            }
+          }
+        }
+
+        // إذا فشل النظام في وضع أي كلمة، نضع كلمة واحدة على الأقل لضمان عمل المستوى
+        if (placedWords.length === 0 && wordsToTry.length > 0) {
+          const firstWord = wordsToTry[0];
+          const path = placeWord(firstWord, grid, currentLevel.gridSize);
+          if (path) {
+            window.placedWordPaths[firstWord] = path;
+            placedWords.push(firstWord);
+          }
+        }
+        targetWords = placedWords; // الاحتفاظ فقط بالكلمات التي تم وضعها بنجاح
+
+        // Fill remaining empty cells with random letters
+        for (let i = 0; i < grid.length; i++) {
+          if (grid[i] === "") {
+            grid[i] = getRandomLetter();
+          }
+        }
+
+        // Render the board
+        boardElement.innerHTML = "";
+        boardElement.style.gridTemplateColumns = `repeat(${currentLevel.gridSize}, 1fr)`;
+
+        grid.forEach((letter, index) => {
+          const cell = document.createElement("div");
+          cell.className = "cell";
+          cell.textContent = letter;
+          cell.setAttribute("data-index", index);
+          cell.addEventListener("click", () => handleLetterClick(cell, index));
+          // تحسين اللمس للموبايل
+          cell.addEventListener(
+            "touchstart",
+            (e) => {
+              e.preventDefault();
+              handleLetterClick(cell, index);
+            },
+            { passive: false },
+          );
+
+          boardElement.appendChild(cell);
+        });
+
+        // Render word list
+        wordListElement.innerHTML = "";
+        targetWords.forEach((word) => {
+          const li = document.createElement("li");
+          li.textContent = word;
+          li.setAttribute("data-word", word);
+          wordListElement.appendChild(li);
+        });
+      }
+
+      function handleLetterClick(cell, index) {
+        if (!isGameActive || foundWords.includes(currentSelection)) return; // Prevent clicking if game not active or word already found
+
+        // If this cell is already part of a found word, ignore click
+        if (cell.classList.contains("found-word")) return;
+
+        // Check if the clicked cell is adjacent to the last selected cell (optional, but makes it more crossword-like)
+        // For simplicity, we'll allow non-adjacent clicks for now, but clear selection if not contiguous.
+        if (currentPath.length > 0) {
+          const lastIndex = currentPath[currentPath.length - 1];
+          const lastRow = Math.floor(lastIndex / currentLevel.gridSize);
+          const lastCol = lastIndex % currentLevel.gridSize;
+          const newRow = Math.floor(index / currentLevel.gridSize);
+          const newCol = index % currentLevel.gridSize;
+
+          const dr = Math.abs(newRow - lastRow);
+          const dc = Math.abs(newCol - lastCol);
+
+          // Allow only horizontal or vertical or diagonal (if enabled) contiguous selection
+          if (
+            !(
+              (dr === 1 && dc === 0) ||
+              (dr === 0 && dc === 1) ||
+              (dr === 1 && dc === 1)
+            )
+          ) {
+            // If not contiguous, clear previous selection and start new
+            triggerShake();
+            clearCurrentSelection();
+          }
+        }
+
+        // If cell is already selected, deselect it
+        if (currentPath.includes(index)) {
+          const pathIndex = currentPath.indexOf(index);
+          // If it's the last selected, just pop it
+          if (pathIndex === currentPath.length - 1) {
+            currentSelection = currentSelection.slice(0, -1);
+            currentPath.pop();
+            cell.classList.remove("selected");
+          } else {
+            // If it's an earlier selected cell, clear everything after it
+            for (let i = currentPath.length - 1; i > pathIndex; i--) {
+              boardElement.children[currentPath[i]].classList.remove(
+                "selected",
+              );
+            }
+            currentPath = currentPath.slice(0, pathIndex + 1);
+            currentSelection = currentSelection.slice(0, pathIndex + 1);
+          }
+          document.getElementById("currentSelectionDisplay").textContent =
+            currentSelection || "ابدأ باختيار الحروف";
+          return;
+        }
+
+        // Start timer on first valid selection
+        if (currentSelection === "" && currentPath.length === 0) {
+          startTimer();
+        }
+
+        currentSelection += cell.textContent;
+        currentPath.push(index);
+        cell.classList.add("selected");
+        clickSound.currentTime = 0; // إعادة ضبط الصوت لضمان العمل مع النقر السريع
+        clickSound.play().catch(() => {});
+        if (currentSelectionDisplay)
+          currentSelectionDisplay.textContent =
+            currentSelection || "ابدأ باختيار الحروف";
+
+        const foundWordIndex = targetWords.findIndex(
+          (word) => word === currentSelection,
+        );
+
+        if (foundWordIndex !== -1) {
+          const foundWord = targetWords[foundWordIndex];
+          foundWords.push(foundWord);
+          targetWords.splice(foundWordIndex, 1); // إزالة الكلمة من القائمة المطلوبة
+
+          // Highlight the found word cells
+          currentPath.forEach((idx) => {
+            boardElement.children[idx].classList.remove("selected");
+            boardElement.children[idx].classList.add("found-word");
+          });
+
+          // Mark word in the list
+          document
+            .querySelector(`li[data-word="${foundWord}"]`)
+            .classList.add("found");
+
+          confetti({ particleCount: 100, spread: 70 });
+          winSound.currentTime = 0; // إعادة ضبط صوت الفوز
+          winSound.play().catch(() => {});
+
+          clearCurrentSelection();
+
+          if (targetWords.length === 0) {
+            stopTimer();
+            const finalTime =
+              document.getElementById("timerDisplay").textContent;
+
+            // منطق فتح المستوى الجديد
+            let nextBtnHtml = "";
+            if (currentLevelIndex < 99) {
+              nextBtnHtml = `<br><button onclick="goToNextLevel()" class="mini-btn" style="margin-top:10px; padding:10px 20px; font-size:1rem;">المستوى التالي ➔</button>`;
+              if (
+                currentLevelIndex + 1 >
+                (parseInt(localStorage.getItem("maxLevelReached")) || 0)
+              ) {
+                localStorage.setItem("maxLevelReached", currentLevelIndex + 1);
+              }
+            } else {
+              nextBtnHtml = "<br>لقد ختمت جميع المستويات! 🎉";
+            }
+
+            statusBox.innerHTML = `<span>🎉 مبروك! حللت المستوى في ${finalTime}${nextBtnHtml}</span>`;
+            isGameActive = false;
+
+            // إرسال النتيجة إلى فيسبوك
+            submitScoreToFB(elapsedTime);
+          }
+        } else if (currentSelection.length > currentLevel.gridSize * 2) {
+          triggerShake();
+          statusBox.innerHTML = "❌ اختيار طويل جداً، حاول مرة أخرى";
+          setTimeout(clearCurrentSelection, 1000);
+        } else {
+          const isPossible = targetWords.some((word) =>
+            word.startsWith(currentSelection),
+          );
+          if (!isPossible) {
+            triggerShake();
+            setTimeout(clearCurrentSelection, 200);
+          }
+        }
+      }
+
+      // دالة الانتقال للمستوى التالي
+      window.goToNextLevel = function () {
+        currentLevelIndex++;
+        localStorage.setItem("currentWordLevel", currentLevelIndex);
+        isGameActive = true;
+        initBoard();
+      };
+
+      function clearCurrentSelection() {
+        currentSelection = "";
+        currentPath.forEach((idx) => {
+          boardElement.children[idx].classList.remove("selected");
+        });
+        currentPath = [];
+        const display = currentSelectionDisplay;
+        if (display) display.textContent = "ابدأ باختيار الحروف";
+      }
+
+      // وظيفة التلميحة
+      function giveHint() {
+        if (!isGameActive || targetWords.length === 0) return;
+        const randomWord =
+          targetWords[Math.floor(Math.random() * targetWords.length)];
+        const firstCellIndex = window.placedWordPaths[randomWord][0];
+        const cell = boardElement.children[firstCellIndex];
+
+        cell.style.background = "#ffea00";
+        cell.style.color = "#000";
+        setTimeout(() => {
+          cell.style.background = "";
+          cell.style.color = "";
+        }, 1000);
+      }
+
+      hintBtn.addEventListener("click", showAdForHint);
+
+      // وظائف لوحة المتصدرين عبر فيسبوك
+      function submitScoreToFB(timeInMs) {
+        if (typeof FBInstant === "undefined" || !fbGameStarted) return;
+
+        FBInstant.getLeaderboardAsync("Global_Word_Challenge")
+          .then((leaderboard) => {
+            // النتيجة هنا هي الوقت، وبما أن الأقل هو الأفضل نضرب في -1 أو نضبط إعدادات اللوحة في فيسبوك
+            return leaderboard.setScoreAsync(
+              timeInMs,
+              JSON.stringify({ level: currentLevelIndex + 1 }),
+            );
+          })
+          .then(() => console.log("Score saved to FB"))
+          .catch((err) => console.error("Leaderboard error:", err));
+      }
+
+      function showLeaderboard() {
+        const entriesContainer = document.getElementById("leaderboardEntries");
+        entriesContainer.innerHTML = "<li>جاري التحميل...</li>";
+        document.getElementById("leaderboardModal").style.display = "block";
+
+        if (typeof FBInstant === "undefined" || !fbGameStarted) {
+          entriesContainer.innerHTML = !fbGameStarted
+            ? "<li>يرجى الانتظار حتى تحميل اللعبة بالكامل...</li>"
+            : "<li>ميزة المتصدرين متاحة فقط عبر فيسبوك</li>";
+          return;
+        }
+
+        FBInstant.getLeaderboardAsync("Global_Word_Challenge")
+          .then((leaderboard) => leaderboard.getEntriesAsync(10, 0))
+          .then((entries) => {
+            entriesContainer.innerHTML = "";
+            let topRankPlayed = false;
+
+            entries.forEach((entry) => {
+              const time = (entry.getScore() / 1000).toFixed(2);
+              const rank = entry.getRank();
+              const li = document.createElement("li");
+              li.className = "leaderboard-item";
+
+              // تشغيل الصوت للمراكز الثلاثة الأولى مرة واحدة عند الفتح
+              if (!topRankPlayed) {
+                if (rank === 1)
+                  document
+                    .getElementById("goldSFX")
+                    .play()
+                    .catch(() => {});
+                else if (rank === 2)
+                  document
+                    .getElementById("silverSFX")
+                    .play()
+                    .catch(() => {});
+                else if (rank === 3)
+                  document
+                    .getElementById("bronzeSFX")
+                    .play()
+                    .catch(() => {});
+                topRankPlayed = true;
+              }
+
+              li.innerHTML = `
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <span style="font-weight:bold; color:${rank === 1 ? "#ffd700" : rank === 2 ? "#c0c0c0" : rank === 3 ? "#cd7f32" : "#fff"}">${rank}</span>
+                                <img src="${entry.getPlayer().getPhoto()}" alt="">
+                                <span>${entry.getPlayer().getName()}</span>
+                            </div>
+                            <span style="color:#ff007f">${time} ثانية</span>
+                        `;
+              entriesContainer.appendChild(li);
+            });
+          })
+          .catch((err) => {
+            entriesContainer.innerHTML = "<li>فشل جلب البيانات</li>";
+          });
+      }
+
+      document
+        .getElementById("showLeaderboardBtn")
+        .addEventListener("click", showLeaderboard);
+      document
+        .getElementById("closeLeaderboard")
+        .addEventListener("click", () => {
+          document.getElementById("leaderboardModal").style.display = "none";
+        });
+      window.onclick = function (event) {
+        if (event.target == document.getElementById("leaderboardModal")) {
+          document.getElementById("leaderboardModal").style.display = "none";
+        }
+      };
+
+      // Event listener for the "Start Game" button
+      document.getElementById("modePVP").addEventListener("click", () => {
+        isGameActive = true;
+        initBoard();
+        document.getElementById("modePVP").textContent = "إعادة اللعب"; // Change button text
+        document.getElementById("modePVP").classList.remove("active"); // Remove active state
+        if (document.getElementById("currentSelectionDisplay")) {
+          document.getElementById("currentSelectionDisplay").textContent =
+            "ابدأ باختيار الحروف";
+        }
+      });
+
+      // Initial setup
+      initBoard(); // Initialize board on load, but game is inactive
+      loadHighScores(); // تحميل الأرقام القياسية عند البدء
+      isGameActive = false; // Ensure game is inactive until "Start" is clicked
+
+      resetBtn.addEventListener("click", () => {
+        isGameActive = true;
+        initBoard();
+        document.getElementById("modePVP").textContent = "ابدأ اللعب"; // Reset button text
+        document.getElementById("modePVP").classList.add("active"); // Add active state
+      });
+
+      document.getElementById("shareFB").addEventListener("click", () => {
+        if (!isGameActive && targetWords.length === 0) {
+          const finalTime = document.getElementById("timerDisplay").textContent;
+          const url = encodeURIComponent(window.location.href);
+          const text = encodeURIComponent(
+            `تحدي! لقد وجدت جميع الكلمات المخفية في ${finalTime} فقط! هل يمكنك هزيمة رقمي القياسي؟`,
+          );
+          window.open(
+            `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`,
+            "_blank",
+          );
+        } else {
+          alert("أكمل اللعبة أولاً لمشاركة نتيجتك!");
+        }
+      });
+
+      // منطق زر تحدي صديق
+      document.getElementById("inviteBtn").addEventListener("click", () => {
+        const level = currentLevelIndex + 1;
+        const shareUrl =
+          window.location.origin +
+          window.location.pathname +
+          "?challengeLevel=" +
+          currentLevelIndex;
+        const shareText = `أتحدّاك في لعبة "تحدي الكلمات النيون"! هل يمكنك حل المستوى ${level} في وقت أسرع مني؟ 🏆`;
+
+        // إذا كان المستخدم داخل بيئة فيسبوك
+        if (typeof FBInstant !== "undefined") {
+          FBInstant.shareAsync({
+            intent: "CHALLENGE",
+            image: "https://cdn-icons-png.flaticon.com/512/5260/5260478.png",
+            text: shareText,
+            payload: { challengeLevel: currentLevelIndex },
+          }).then(() => {
+            console.log("Invite sent via Facebook");
+          });
+        }
+        // إذا كان المتصفح يدعم مشاركة الروابط (واتساب، تليجرام، إلخ)
+        else if (navigator.share) {
+          navigator
+            .share({
+              title: "تحدي الكلمات",
+              text: shareText,
+              url: shareUrl,
+            })
+            .catch(console.error);
+        }
+        // الخيار البديل: نسخ الرابط للحافظة
+        else {
+          navigator.clipboard.writeText(`${shareText} ${shareUrl}`);
+          alert(
+            "تم نسخ رابط التحدي! أرسله لصديقك عبر واتساب أو أي وسيلة أخرى.",
+          );
+        }
+      });
+
+      // منطق زر تثبيت التطبيق (PWA) المخصص
+      let deferredPrompt;
+      const installBtn = document.getElementById("installBtn");
+
+      window.addEventListener("beforeinstallprompt", (e) => {
+        // منع المتصفح من إظهار النافذة التلقائية
+        e.preventDefault();
+        // تخزين الحدث ليتم استخدامه لاحقاً
+        deferredPrompt = e;
+        // إظهار الزر المخصص
+        installBtn.style.display = "block";
+
+        installBtn.addEventListener("click", () => {
+          // إخفاء الزر بعد النقر
+          installBtn.style.display = "none";
+          // إظهار نافذة التثبيت الأصلية
+          deferredPrompt.prompt();
+          // فحص قرار المستخدم
+          deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === "accepted") {
+              console.log("User accepted the install prompt");
+            }
+            deferredPrompt = null;
+          });
+        });
+      });
+
+      window.addEventListener("appinstalled", () => {
+        console.log("PWA was installed");
+        installBtn.style.display = "none";
+      });
+
+      // تسجيل Service Worker للعمل بدون إنترنت
+      if ("serviceWorker" in navigator) {
+        if (window.location.protocol === "file:") {
+          console.warn(
+            "تنبيه: Service Worker لا يعمل عبر بروتوكول file://. يرجى استخدام خادم محلي (Local Server).",
+          );
+        } else {
+          window.addEventListener("load", () => {
+            navigator.serviceWorker
+              .register("./sw.js")
+              .then((reg) => console.log("Service Worker Registered"))
+              .catch((err) => console.log("Service Worker Failed", err));
+          });
+        }
+      }
+
+      // نظام الجزيئات المتحركة (Animated Particles)
+      const pCanvas = document.createElement("canvas");
+      pCanvas.id = "particles-canvas";
+      document.body.prepend(pCanvas);
+      const pCtx = pCanvas.getContext("2d");
+      let pArray = [];
+      function pInit() {
+        pCanvas.width = window.innerWidth;
+        pCanvas.height = window.innerHeight;
+        pArray = [];
+        const count = Math.floor(window.innerWidth / 25);
+        for (let i = 0; i < count; i++) {
+          pArray.push({
+            x: Math.random() * pCanvas.width,
+            y: Math.random() * pCanvas.height,
+            size: Math.random() * 2 + 0.5,
+            vx: (Math.random() - 0.5) * 0.4,
+            vy: (Math.random() - 0.5) * 0.4,
+            color: Math.random() > 0.5 ? "#00f2fe" : "#ff007f",
+          });
+        }
+      }
+      function pAnimate() {
+        pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
+        pArray.forEach((p) => {
+          p.x += p.vx;
+          p.y += p.vy;
+          if (p.x < 0 || p.x > pCanvas.width) p.vx *= -1;
+          if (p.y < 0 || p.y > pCanvas.height) p.vy *= -1;
+          pCtx.fillStyle = p.color;
+          pCtx.globalAlpha = 0.4;
+          pCtx.beginPath();
+          pCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          pCtx.fill();
+        });
+        requestAnimationFrame(pAnimate);
+      }
+      window.addEventListener("resize", pInit);
+      pInit();
+      pAnimate();
+
+      // دالة تأثير الكتابة المتحرك
+      function startTypingEffect() {
+        const titleEl = document.getElementById("gameTitle");
+        const text = titleEl.innerText;
+        titleEl.innerText = "";
+        titleEl.classList.add("typing-cursor");
+
+        let i = 0;
+        function type() {
+          if (i < text.length) {
+            titleEl.innerHTML += text.charAt(i);
+            i++;
+            setTimeout(type, 300); // تقليل سرعة الكتابة (زيادة الوقت بين الحروف)
+          } else {
+            setTimeout(() => titleEl.classList.remove("typing-cursor"), 2000);
+          }
+        }
+        type();
+      }
+      startTypingEffect();
+      //]]>
+    </script>
+  </body>
+</html>
