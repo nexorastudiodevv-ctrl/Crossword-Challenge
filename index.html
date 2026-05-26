@@ -85,22 +85,6 @@
         --accent-pink: #d81b60;
       }
 
-      /* التبديل للوضع النهاري تلقائياً */
-      @media (prefers-color-scheme: light) {
-        :root {
-          --bg-gradient: radial-gradient(
-            circle at center,
-            #f0f2f5 0%,
-            #c9d6ff 100%
-          );
-          --text-color: #1a1a2e;
-          --glass-bg: rgba(255, 255, 255, 0.7);
-          --glass-border: rgba(0, 0, 0, 0.1);
-          --item-bg: rgba(0, 0, 0, 0.05);
-          --shadow-color: rgba(0, 0, 0, 0.15);
-        }
-      }
-
       body {
         font-family: "Tajawal", sans-serif;
         background: var(--bg-gradient);
@@ -2174,10 +2158,7 @@
       function updateColors() {
         const style = getComputedStyle(document.body);
         cyanColor = style.getPropertyValue("--accent-cyan").trim() || "#00f2fe";
-        const rootStyle = getComputedStyle(document.documentElement);
-        if (!cyanColor)
-          cyanColor = rootStyle.getPropertyValue("--accent-cyan").trim();
-        pinkColor = style.getPropertyValue("--accent-pink").trim();
+        pinkColor = style.getPropertyValue("--accent-pink").trim() || "#ff007f";
       }
 
       function pInit() {
