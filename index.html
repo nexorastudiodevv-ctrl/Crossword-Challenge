@@ -49,6 +49,8 @@
     />
 
     <!-- مكتبة ألعاب فيسبوك الفورية (Instant Games SDK) -->
+    <script src="https://connect.facebook.net/en_US/fbinstant.7.1.js"></script>
+
     <link
       href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap"
       rel="stylesheet"
@@ -56,14 +58,10 @@
     <style>
       /* تعريف المتغيرات للوضع الليلي والنهاري */
       :root {
-        --bg-gradient: radial-gradient(
-          circle at center,
-          #1a1a2e 0%,
-          #0a0a12 100%
-        );
+        --bg-gradient: #000;
         --text-color: #fff;
-        --glass-bg: rgba(255, 255, 255, 0.01);
-        --glass-border: rgba(255, 255, 255, 0.05);
+        --glass-bg: rgba(255, 255, 255, 0.03);
+        --glass-border: rgba(255, 255, 255, 0.1);
         --item-bg: rgba(255, 255, 255, 0.03);
         --shadow-color: rgba(0, 0, 0, 0.6);
         --accent-cyan: #00f2fe;
@@ -512,21 +510,76 @@
         list-style: none;
         padding: 0;
         margin-top: 20px;
-        max-height: 300px;
+        max-height: 380px;
         overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: var(--accent-cyan) transparent;
+      }
+      .leaderboard-list::-webkit-scrollbar {
+        width: 6px;
+      }
+      .leaderboard-list::-webkit-scrollbar-thumb {
+        background: var(--accent-cyan);
+        border-radius: 10px;
       }
       .leaderboard-item {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 10px;
-        border-bottom: 1px solid var(--glass-border);
+        padding: 12px;
+        border-radius: 12px;
+        margin-bottom: 8px;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid transparent;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        opacity: 0;
+        transform: translateX(20px);
+      }
+      .leaderboard-item.show {
+        opacity: 1;
+        transform: translateX(0);
+      }
+      .leaderboard-item:hover {
+        background: rgba(0, 242, 254, 0.05);
+        border-color: rgba(0, 242, 254, 0.2);
+        transform: scale(1.02);
+      }
+      .leaderboard-item.current-user {
+        background: rgba(255, 0, 127, 0.08);
+        border: 1px solid var(--accent-pink);
+        box-shadow: inset 0 0 10px rgba(255, 0, 127, 0.1);
+      }
+      .rank-badge {
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        font-weight: bold;
+        font-size: 0.85rem;
+        background: var(--item-bg);
+        color: var(--text-color);
+      }
+      .rank-1 {
+        background: linear-gradient(135deg, #ffd700, #b8860b);
+        color: #000;
+        box-shadow: 0 0 10px #ffd700;
+      }
+      .rank-2 {
+        background: linear-gradient(135deg, #c0c0c0, #808080);
+        color: #000;
+      }
+      .rank-3 {
+        background: linear-gradient(135deg, #cd7f32, #8b4513);
+        color: #000;
       }
       .leaderboard-item img {
-        width: 35px;
-        height: 35px;
+        width: 38px;
+        height: 38px;
         border-radius: 50%;
-        border: 1px solid var(--accent-cyan);
+        border: 2px solid var(--accent-cyan);
+        object-fit: cover;
       }
       .close-modal {
         float: left;
@@ -542,7 +595,7 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: #0a0a12;
+        background: #000;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -613,7 +666,16 @@
         <img
           src="assets/images/splash.webp"
           alt="Splash Screen"
+          loading="eager"
+          width="450"
+          height="253"
           id="splash-img"
+          onerror="
+            this.style.display = 'none';
+            console.error(
+              'فشل تحميل صورة Splash. تأكد من المسار: assets/images/splash.webp',
+            );
+          "
         />
         <div class="progress-container">
           <div id="progress-bar"></div>
@@ -785,11 +847,15 @@
       src="https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3"
     ></audio>
 
-    <!-- مكتبة ألعاب فيسبوك الفورية -->
-    <script src="https://connect.facebook.net/en_US/fbinstant.7.1.js"></script>
-
     <!-- مكتبة Confetti للرسوم المتحركة -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+    <!-- أداة تصحيح الأخطاء للجوال - Eruda -->
+    <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+    <script>
+      // تفعيل الأداة فقط إذا كان الرابط يحتوي على كلمة debug أو يمكنك تفعيلها دائماً أثناء التطوير
+      eruda.init();
+    </script>
 
     <script type="text/javascript">
       //<![CDATA[
@@ -797,7 +863,11 @@
       let rewardedVideoAd = null; // متغير لتخزين الإعلان
 
       // نظام محاكاة فيسبوك للاختبار على المتصفح العادي
-      if (typeof FBInstant === "undefined") {
+      // نتحقق مما إذا كنا في بيئة فيسبوك الحقيقية (داخل إطار iframe)
+      const isFacebookEnv =
+        typeof FBInstant !== "undefined" && window.self !== window.top;
+
+      if (!isFacebookEnv) {
         console.warn(
           "تنبيه: تعمل اللعبة في وضع المحاكاة (Mock Mode) خارج بيئة فيسبوك.",
         );
@@ -815,6 +885,8 @@
             getPhoto: () => "https://via.placeholder.com/35",
             getID: () => "12345",
           },
+          getRewardedVideoAsync: () =>
+            Promise.reject("الإعلانات غير مدعومة في وضع المحاكاة"),
           shareAsync: () => Promise.resolve(),
         };
       }
@@ -842,19 +914,40 @@
         updateProgress(loadingProgress);
       }, 150);
 
-      FBInstant.initializeAsync()
+      // مؤقت أمان: إخفاء شاشة التحميل إذا استغرق الأمر أكثر من 10 ثوانٍ
+      setTimeout(() => {
+        const ls = document.getElementById("loading-screen");
+        if (ls && ls.style.display !== "none") {
+          console.warn(
+            "تنبيه: استغرق تحميل SDK وقتاً طويلاً، تم إخفاء الشاشة تلقائياً.",
+          );
+          ls.style.opacity = "0";
+          setTimeout(() => (ls.style.display = "none"), 800);
+        }
+      }, 10000);
+
+      // تنفيذ التهيئة فقط إذا كان فيسبوك متاحاً أو استخدام الـ Mock
+      const initTask = isFacebookEnv
+        ? FBInstant.initializeAsync()
+        : Promise.resolve();
+
+      initTask
         .then(() => FBInstant.startGameAsync())
         .then(() => {
           clearInterval(loadingInterval);
           updateProgress(100);
-          setTimeout(() => {
-            const ls = document.getElementById("loading-screen");
-            if (ls) ls.style.opacity = "0";
-            setTimeout(() => (ls.style.display = "none"), 800);
-            fbGameStarted = true;
-            loadRewardedVideoAd();
-          }, 500);
-        });
+          const ls = document.getElementById("loading-screen");
+          if (ls) ls.style.opacity = "0";
+          setTimeout(() => (ls.style.display = "none"), 800);
+          fbGameStarted = true;
+          loadRewardedVideoAd();
+        })
+        .catch((error) => {
+          console.error("فشل بدء اللعبة عبر FBInstant:", error);
+          // إخفاء شاشة التحميل حتى لو فشل بدء اللعبة عبر FBInstant
+          const ls = document.getElementById("loading-screen");
+          if (ls) ls.style.display = "none";
+        }); // إضافة معالجة الأخطاء هنا
 
       function loadRewardedVideoAd() {
         if (typeof FBInstant === "undefined" || !fbGameStarted) return;
@@ -863,6 +956,9 @@
           .then((ad) => {
             rewardedVideoAd = ad;
             return rewardedVideoAd.loadAsync();
+          }) // إضافة معالجة الأخطاء هنا
+          .catch((err) => {
+            console.error("فشل تحميل إعلان الفيديو بمكافأة:", err);
           })
           .then(() => console.log("Rewarded Video loaded and ready"))
           .catch((err) => console.error("Ad failed to load", err));
@@ -880,7 +976,9 @@
             })
             .catch((err) => {
               console.error("Ad failed to show", err);
-              alert("عذراً، لم يكتمل الإعلان.");
+              alert(
+                "عذراً، لم يكتمل الإعلان أو حدث خطأ. يرجى المحاولة لاحقاً.",
+              );
             });
         } else {
           // إذا لم يتوفر إعلان، امنح التلميحة مجاناً أو أظهر رسالة
@@ -1849,16 +1947,54 @@
           .then((leaderboard) => leaderboard.getEntriesAsync(10, 0))
           .then((entries) => {
             entriesContainer.innerHTML = "";
-            let topRankPlayed = false;
 
-            entries.forEach((entry) => {
+            entries.forEach((entry, index) => {
               const time = (entry.getScore() / 1000).toFixed(2);
               const rank = entry.getRank();
+              const player = entry.getPlayer();
+              const isMe = player.getID() === FBInstant.player.getID();
+              const extraData = JSON.parse(entry.getExtraData() || "{}");
+
               const li = document.createElement("li");
               li.className = "leaderboard-item";
+              if (isMe) li.classList.add("current-user");
 
-              // تشغيل الصوت للمراكز الثلاثة الأولى مرة واحدة عند الفتح
-              if (!topRankPlayed) {
+              const rankClass = rank <= 3 ? `rank-${rank}` : "";
+
+              li.innerHTML = `
+                  <div style="display:flex; align-items:center; gap:12px;">
+                      <div class="rank-badge ${rankClass}">${rank}</div>
+                      <img src="${player.getPhoto()}" alt="">
+                      <div style="display:flex; flex-direction:column; align-items:flex-start;">
+                          <span style="font-weight:bold; font-size:0.95rem;">${player.getName()} ${isMe ? "(أنت)" : ""}</span>
+                          <span style="font-size:0.75rem; opacity:0.7;">المستوى ${extraData.level || "؟"}</span>
+                      </div>
+                  </div>
+                  <div style="text-align:right;">
+                  <div style="display:flex; flex-direction:column; align-items:flex-end; gap:5px;">
+                      <div style="color:var(--accent-pink); font-weight:bold; font-size:0.9rem;">${time} ثانية</div>
+                      ${!isMe ? `<button class="mini-btn challenge-player-btn" style="padding: 2px 8px; font-size: 0.65rem;">تحدي ⚔️</button>` : ""}
+                  </div>
+              `;
+
+              entriesContainer.appendChild(li);
+
+              const challengeBtn = li.querySelector(".challenge-player-btn");
+              if (challengeBtn) {
+                challengeBtn.addEventListener("click", () => {
+                  FBInstant.shareAsync({
+                    intent: "CHALLENGE",
+                    image: "assets/icons/icon-512.png",
+                    text: `أتحداك يا ${player.getName()}! هل يمكنك التفوق على نتيجتي في المستوى ${extraData.level || currentLevelIndex + 1}؟ 🏆`,
+                    payload: { challengeLevel: currentLevelIndex },
+                  });
+                });
+              }
+
+              // تأثير الدخول المتدرج (Staggered Animation)
+              setTimeout(() => {
+                li.classList.add("show");
+                // تشغيل أصوات المراكز الأولى عند ظهورها
                 if (rank === 1)
                   document
                     .getElementById("goldSFX")
@@ -1874,22 +2010,13 @@
                     .getElementById("bronzeSFX")
                     .play()
                     .catch(() => {});
-                topRankPlayed = true;
-              }
-
-              li.innerHTML = `
-                            <div style="display:flex; align-items:center; gap:10px;">
-                                <span style="font-weight:bold; color:${rank === 1 ? "#ffd700" : rank === 2 ? "#c0c0c0" : rank === 3 ? "#cd7f32" : "#fff"}">${rank}</span>
-                                <img src="${entry.getPlayer().getPhoto()}" alt="">
-                                <span>${entry.getPlayer().getName()}</span>
-                            </div>
-                            <span style="color:var(--accent-pink)">${time} ثانية</span>
-                        `;
-              entriesContainer.appendChild(li);
+              }, index * 120);
             });
           })
           .catch((err) => {
-            entriesContainer.innerHTML = "<li>فشل جلب البيانات</li>";
+            console.error(err);
+            entriesContainer.innerHTML =
+              "<li>فشل جلب البيانات. تأكد من إعداد لوحة الصدارة في فيسبوك.</li>";
           });
       }
 
@@ -2089,6 +2216,25 @@
       window
         .matchMedia("(prefers-color-scheme: light)")
         .addEventListener("change", updateColors);
+
+      const themeToggleBtn = document.getElementById("themeToggleBtn");
+      // التحقق من الثيم المخزن عند تحميل الصفحة
+      if (localStorage.getItem("theme") === "light") {
+        document.body.classList.add("light-mode");
+        themeToggleBtn.textContent = "وضع ليلي 🌙";
+      }
+
+      themeToggleBtn.addEventListener("click", () => {
+        document.body.classList.toggle("light-mode");
+        const isLight = document.body.classList.contains("light-mode");
+        themeToggleBtn.textContent = isLight ? "وضع ليلي 🌙" : "وضع نهاري ☀️";
+        localStorage.setItem("theme", isLight ? "light" : "dark");
+
+        // تحديث ألوان الجزيئات المتحركة لتناسب الوضع الجديد
+        updateColors();
+        pInit();
+      });
+
       updateColors();
       pInit();
       pAnimate();

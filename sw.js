@@ -2,11 +2,13 @@ const CACHE_NAME = 'neon-games-cache-v1';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
-  './imdex.htm',
   './xo-worker.js',
   './manifest.json',
   'https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap',
-  'https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js'
+  'https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js',
+  './assets/icons/icon-192.png',
+  './assets/icons/icon-512.png',
+  './assets/images/splash.e.jpg'
 ];
 
 // تثبيت عامل الخدمة وتخزين الملفات
