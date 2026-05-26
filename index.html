@@ -71,6 +71,22 @@
         --accent-yellow: #ffea00;
       }
 
+      /* تعريف متغيرات الوضع النهاري */
+      body.light-mode {
+        --bg-gradient: radial-gradient(
+          circle at center,
+          #f0f2f5 0%,
+          #c9d6ff 100%
+        );
+        --text-color: #1a1a2e;
+        --glass-bg: rgba(255, 255, 255, 0.7);
+        --glass-border: rgba(0, 0, 0, 0.1);
+        --item-bg: rgba(0, 0, 0, 0.05);
+        --shadow-color: rgba(0, 0, 0, 0.15);
+        --accent-cyan: #0077be;
+        --accent-pink: #d81b60;
+      }
+
       /* التبديل للوضع النهاري تلقائياً */
       @media (prefers-color-scheme: light) {
         :root {
@@ -518,15 +534,107 @@
         cursor: pointer;
         color: var(--accent-pink);
       }
+
+      /* تصميم شاشة التحميل الاحترافية */
+      #loading-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #0a0a12;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        transition: opacity 0.8s ease;
+      }
+      .loading-content {
+        text-align: center;
+        width: 85%;
+        max-width: 450px;
+      }
+      #splash-img {
+        width: 100%;
+        border-radius: 20px;
+        margin-bottom: 25px;
+        box-shadow: 0 0 30px var(--accent-cyan);
+        border: 2px solid var(--glass-border);
+        animation: floatSplash 3s ease-in-out infinite;
+      }
+      @keyframes floatSplash {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+      .progress-container {
+        width: 100%;
+        height: 12px;
+        background: var(--item-bg);
+        border-radius: 10px;
+        border: 1px solid var(--glass-border);
+        overflow: hidden;
+      }
+      #progress-bar {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(
+          90deg,
+          var(--accent-cyan),
+          var(--accent-pink)
+        );
+        box-shadow: 0 0 15px var(--accent-cyan);
+        transition: width 0.4s ease;
+      }
+      #loading-text {
+        margin-top: 15px;
+        font-size: 1rem;
+        color: var(--accent-cyan);
+        font-weight: bold;
+      }
     </style>
   </head>
   <body>
+    <!-- شاشة التحميل -->
+    <div id="loading-screen">
+      <div class="loading-content">
+        <img
+          src="assets/images/splash.webp"
+          alt="Splash Screen"
+          id="splash-img"
+        />
+        <div class="progress-container">
+          <div id="progress-bar"></div>
+        </div>
+        <p id="loading-text">جاري تحضير عالم النيون... 0%</p>
+      </div>
+    </div>
+
     <div class="header-container">
       <h1 id="gameTitle">تحدي الكلمات المتقاطعة</h1>
     </div>
 
     <div class="mode-selector">
       <div class="mode-option active" id="modePVP">ابدأ اللعب</div>
+      <div
+        class="mode-option"
+        id="themeToggleBtn"
+        style="border-color: var(--accent-cyan); color: var(--accent-cyan)"
+      >
+        وضع نهاري ☀️
+      </div>
       <div
         class="mode-option"
         id="hintBtn"
@@ -700,63 +808,53 @@
             fbGameStarted = true;
             return Promise.resolve();
           },
-          getLeaderboardAsync: (name) =>
-            Promise.resolve({
-              getName: () => name,
-              setScoreAsync: (s, d) => {
-                console.log(`تم حفظ النتيجة وهمياً: ${s}`);
-                return Promise.resolve();
-              },
-              getEntriesAsync: (count, offset) =>
-                Promise.resolve([
-                  {
-                    getRank: () => 1,
-                    getScore: () => 5000,
-                    getPlayer: () => ({
-                      getName: () => "لاعب تجريبي 1",
-                      getPhoto: () => "https://via.placeholder.com/35",
-                    }),
-                  },
-                  {
-                    getRank: () => 2,
-                    getScore: () => 8000,
-                    getPlayer: () => ({
-                      getName: () => "لاعب تجريبي 2",
-                      getPhoto: () => "https://via.placeholder.com/35",
-                    }),
-                  },
-                  {
-                    getRank: () => 3,
-                    getScore: () => 12000,
-                    getPlayer: () => ({
-                      getName: () => "لاعب تجريبي 3",
-                      getPhoto: () => "https://via.placeholder.com/35",
-                    }),
-                  },
-                ]),
-            }),
+          getLeaderboardAsync: () =>
+            Promise.resolve({ getEntriesAsync: () => Promise.resolve([]) }),
           player: {
             getName: () => "مطور محلي",
             getPhoto: () => "https://via.placeholder.com/35",
             getID: () => "12345",
           },
-          shareAsync: (conf) => {
-            console.log("طلب مشاركة:", conf);
-            return Promise.resolve();
-          },
+          shareAsync: () => Promise.resolve(),
         };
       }
 
-      // تهيئة فيسبوك
-      FBInstant.initializeAsync().then(function () {
-        FBInstant.setLoadingProgress(100);
-        FBInstant.startGameAsync().then(function () {
-          console.log("FB Game Started Ready");
-          fbGameStarted = true;
-          // تحميل الإعلان مسبقاً عند بدء اللعبة
-          loadRewardedVideoAd();
+      // بدء محاكاة شريط التحميل فوراً لضمان عدم توقفه عند 0%
+      let loadingProgress = 0;
+      const progressBar = document.getElementById("progress-bar");
+      const loadingText = document.getElementById("loading-text");
+
+      const updateProgress = (p) => {
+        if (typeof FBInstant !== "undefined" && FBInstant.setLoadingProgress) {
+          FBInstant.setLoadingProgress(p);
+        }
+        if (progressBar) progressBar.style.width = p + "%";
+        if (loadingText)
+          loadingText.textContent = `جاري تحضير عالم النيون... ${Math.floor(p)}%`;
+      };
+
+      const loadingInterval = setInterval(() => {
+        loadingProgress += Math.random() * 8;
+        if (loadingProgress >= 95) {
+          loadingProgress = 95;
+          clearInterval(loadingInterval);
+        }
+        updateProgress(loadingProgress);
+      }, 150);
+
+      FBInstant.initializeAsync()
+        .then(() => FBInstant.startGameAsync())
+        .then(() => {
+          clearInterval(loadingInterval);
+          updateProgress(100);
+          setTimeout(() => {
+            const ls = document.getElementById("loading-screen");
+            if (ls) ls.style.opacity = "0";
+            setTimeout(() => (ls.style.display = "none"), 800);
+            fbGameStarted = true;
+            loadRewardedVideoAd();
+          }, 500);
         });
-      });
 
       function loadRewardedVideoAd() {
         if (typeof FBInstant === "undefined" || !fbGameStarted) return;
@@ -1947,8 +2045,11 @@
 
       // دالة لتحديث الألوان بناءً على الثيم الحالي (ليلي/نهاري)
       function updateColors() {
-        const style = getComputedStyle(document.documentElement);
-        cyanColor = style.getPropertyValue("--accent-cyan").trim();
+        const style = getComputedStyle(document.body);
+        cyanColor = style.getPropertyValue("--accent-cyan").trim() || "#00f2fe";
+        const rootStyle = getComputedStyle(document.documentElement);
+        if (!cyanColor)
+          cyanColor = rootStyle.getPropertyValue("--accent-cyan").trim();
         pinkColor = style.getPropertyValue("--accent-pink").trim();
       }
 
