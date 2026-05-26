@@ -2,7 +2,10 @@
 <html lang="ar" dir="rtl">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
     <title>تحدي الكلمات المتقاطعة</title>
     <meta
       name="description"
@@ -15,16 +18,15 @@
       property="og:description"
       content="ابحث عن الكلمات المخفية في شبكة النيون! هل يمكنك العثور عليها جميعاً في أسرع وقت؟"
     />
-    <meta
-      property="og:image"
-      content="https://example.com/your-game-thumbnail.jpg"
-    />
+    <!-- تأكد من وضع صورة الغلاف في مجلد assets/images -->
+    <meta property="og:image" content="assets/images/og-image.jpg" />
     <!-- ضع رابط صورة لعبتك هنا -->
-    <meta property="og:url" content="https://your-game-url.com" />
+    <meta property="og:url" content="https://apps.facebook.com/your-game-id" />
     <!-- ضع رابط موقع اللعبة هنا -->
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="ar_AR" />
-    <meta property="fb:app_id" content="YOUR_FB_APP_ID" />
+    <meta property="fb:app_id" content="1234567890" />
+    <!-- استبدل هذا الرقم بمعرف تطبيقك الحقيقي من فيسبوك -->
     <!-- اختياري: معرف تطبيق فيسبوك -->
 
     <!-- وسوم Meta لتويتر (Twitter Cards) -->
@@ -34,10 +36,7 @@
       name="twitter:description"
       content="ابحث عن الكلمات المخفية في شبكة النيون! هل يمكنك العثور عليها جميعاً في أسرع وقت؟"
     />
-    <meta
-      name="twitter:image"
-      content="https://example.com/your-game-thumbnail.jpg"
-    />
+    <meta name="twitter:image" content="assets/images/og-image.jpg" />
 
     <!-- روابط PWA -->
     <link rel="manifest" href="manifest.json" />
@@ -55,18 +54,52 @@
       rel="stylesheet"
     />
     <style>
+      /* تعريف المتغيرات للوضع الليلي والنهاري */
+      :root {
+        --bg-gradient: radial-gradient(
+          circle at center,
+          #1a1a2e 0%,
+          #0a0a12 100%
+        );
+        --text-color: #fff;
+        --glass-bg: rgba(255, 255, 255, 0.01);
+        --glass-border: rgba(255, 255, 255, 0.05);
+        --item-bg: rgba(255, 255, 255, 0.03);
+        --shadow-color: rgba(0, 0, 0, 0.6);
+        --accent-cyan: #00f2fe;
+        --accent-pink: #ff007f;
+        --accent-yellow: #ffea00;
+      }
+
+      /* التبديل للوضع النهاري تلقائياً */
+      @media (prefers-color-scheme: light) {
+        :root {
+          --bg-gradient: radial-gradient(
+            circle at center,
+            #f0f2f5 0%,
+            #c9d6ff 100%
+          );
+          --text-color: #1a1a2e;
+          --glass-bg: rgba(255, 255, 255, 0.7);
+          --glass-border: rgba(0, 0, 0, 0.1);
+          --item-bg: rgba(0, 0, 0, 0.05);
+          --shadow-color: rgba(0, 0, 0, 0.15);
+        }
+      }
+
       body {
         font-family: "Tajawal", sans-serif;
-        background: radial-gradient(circle at center, #1a1a2e 0%, #0a0a12 100%);
-        color: #fff;
+        background: var(--bg-gradient);
+        color: var(--text-color);
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        min-height: 80vh;
+        min-height: 100dvh;
         margin: 0;
-        padding: 20px;
+        padding: 10px;
         overflow-x: hidden;
+        overflow-y: auto; /* السماح بالتمرير العمودي إذا كان المحتوى أكبر من الشاشة */
       }
       .scoreboard {
         display: flex;
@@ -77,11 +110,11 @@
       }
       .score-item {
         text-align: center;
-        background: rgba(255, 255, 255, 0.03);
+        background: var(--item-bg);
         padding: 10px 20px;
         border-radius: 10px;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        border: 1px solid var(--glass-border);
+        box-shadow: 0 4px 15px var(--shadow-color);
         transition: transform 0.3s ease;
       }
       .score-item:hover {
@@ -93,31 +126,33 @@
         padding-top: 10px;
       }
       .high-scoreboard .score-item {
-        background: rgba(0, 242, 254, 0.05);
+        background: rgba(0, 242, 254, 0.1);
         border: 1px solid rgba(0, 242, 254, 0.1);
-        color: #00f2fe;
-        box-shadow: 0 0 10px rgba(0, 242, 254, 0.1);
+        color: var(--accent-cyan);
+        box-shadow: 0 0 10px rgba(0, 242, 254, 0.15);
       }
       .mode-selector {
         margin-bottom: 20px;
         display: flex;
-        gap: 10px;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: center;
         animation: fadeInDown 1s ease-out;
       }
       .mode-option {
-        padding: 8px 18px;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 6px 12px;
+        background: var(--item-bg);
+        border: 1px solid var(--glass-border);
         border-radius: 20px;
         cursor: pointer;
         transition: 0.3s;
-        font-size: 0.9rem;
+        font-size: 0.75rem;
       }
       .mode-option.active {
-        background: #00f2fe;
+        background: var(--accent-cyan);
         color: #0f0f1a;
-        border-color: #00f2fe;
-        box-shadow: 0 0 15px rgba(0, 242, 254, 0.4);
+        border-color: var(--accent-cyan);
+        box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
       }
 
       /* استعادة التنسيقات المفقودة لإخفاء العناصر غير المستخدمة حالياً */
@@ -126,10 +161,10 @@
         flex-direction: column;
         gap: 10px;
         margin-bottom: 20px;
-        background: rgba(255, 255, 255, 0.02);
+        background: var(--glass-bg);
         padding: 15px;
         border-radius: 15px;
-        border: 1px solid rgba(0, 242, 254, 0.2);
+        border: 1px solid var(--glass-border);
         width: min(350px, 100%);
       }
       .online-controls input {
@@ -142,7 +177,7 @@
       }
       .peer-id-display {
         font-size: 0.8rem;
-        color: #00f2fe;
+        color: var(--accent-cyan);
       }
       .peer-id-wrapper {
         display: flex;
@@ -154,9 +189,9 @@
       .mini-btn {
         padding: 4px 10px;
         font-size: 0.7rem;
-        background: rgba(0, 242, 254, 0.2);
-        border: 1px solid #00f2fe;
-        color: #00f2fe;
+        background: rgba(0, 242, 254, 0.1);
+        border: 1px solid var(--accent-cyan);
+        color: var(--accent-cyan);
         border-radius: 5px;
         cursor: pointer;
       }
@@ -167,8 +202,8 @@
       }
       .difficulty-option {
         padding: 5px 15px;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: var(--item-bg);
+        border: 1px solid var(--glass-border);
         border-radius: 10px;
         cursor: pointer;
         font-size: 0.8rem;
@@ -178,9 +213,9 @@
         display: none;
         width: min(350px, 100%);
         margin-top: 15px;
-        background: rgba(255, 255, 255, 0.05);
+        background: var(--glass-bg);
         border-radius: 10px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        border: 1px solid var(--glass-border);
         overflow: hidden;
       }
       .chat-history {
@@ -193,16 +228,16 @@
 
       /* New styles for word list */
       .words-to-find {
-        margin-top: 20px;
+        margin-top: 10px;
         text-align: center;
-        font-size: 1.1rem;
-        color: #fff;
+        font-size: 0.9rem;
+        color: var(--text-color);
         animation: fadeInUp 1.2s ease-out;
       }
       .words-to-find p {
         margin-bottom: 10px;
-        color: #00f2fe;
-        text-shadow: 0 0 8px #00f2fe;
+        color: var(--accent-cyan);
+        text-shadow: 0 0 8px var(--accent-cyan);
       }
       .words-to-find ul {
         list-style: none;
@@ -210,45 +245,45 @@
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
-        gap: 10px;
+        gap: 6px;
         max-width: 100%;
       }
       .words-to-find li {
-        background: rgba(255, 255, 255, 0.03);
-        padding: 8px 12px;
+        background: var(--item-bg);
+        padding: 5px 10px;
         border-radius: 8px;
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        border: 1px solid var(--glass-border);
         transition:
           background 0.3s ease,
           color 0.3s ease;
         font-weight: bold;
-        color: #fff;
+        color: var(--text-color);
       }
       .words-to-find li.found {
-        background: #ff007f; /* Pink for found words */
+        background: var(--accent-pink); /* Pink for found words */
         color: #0f0f1a;
         text-decoration: line-through;
-        border-color: #ff007f;
-        box-shadow: 0 0 10px rgba(255, 0, 127, 0.4);
+        border-color: var(--accent-pink);
+        box-shadow: 0 0 10px rgba(255, 0, 127, 0.3);
       }
 
       h1 {
-        font-size: 2.5rem;
+        font-size: clamp(1.5rem, 7vw, 2.2rem);
         margin-bottom: 10px;
-        text-shadow: 0 0 20px rgba(0, 242, 254, 0.5);
-        color: #00f2fe;
+        text-shadow: 0 0 20px rgba(0, 242, 254, 0.3);
+        color: var(--accent-cyan);
         letter-spacing: 1px;
         animation: fadeInDown 0.6s ease-out;
       }
 
       .game-container {
-        background: rgba(255, 255, 255, 0.01);
+        background: var(--glass-bg);
         backdrop-filter: blur(15px);
         -webkit-backdrop-filter: blur(15px);
-        border: 1px solid rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--glass-border);
         border-radius: 20px;
-        padding: 25px;
-        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
+        padding: 15px;
+        box-shadow: 0 25px 50px var(--shadow-color);
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -257,12 +292,12 @@
       }
 
       .status-box {
-        font-size: 1.2rem;
-        margin-bottom: 20px;
-        padding: 10px 20px;
+        font-size: 1rem;
+        margin-bottom: 15px;
+        padding: 8px 15px;
         border-radius: 30px;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: var(--item-bg);
+        border: 1px solid var(--glass-border);
         text-align: center;
         min-width: 250px;
       }
@@ -272,29 +307,31 @@
       }
       .board {
         display: grid;
-        gap: 8px;
-        width: min(500px, 95vw);
+        gap: 4px;
+        width: 92vw;
+        max-width: 450px;
         aspect-ratio: 1 / 1;
         margin: 0 auto;
         animation: zoomIn 0.5s ease-out;
       }
       .cell {
-        background: rgba(255, 255, 255, 0.02);
-        border: 1px solid rgba(255, 255, 255, 0.06);
+        background: var(--item-bg);
+        border: 1px solid var(--glass-border);
         border-radius: 8px; /* Adjusted for larger grid */
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: clamp(0.7rem, 3.5vw, 1.6rem);
+        font-size: clamp(0.6rem, 3.2vw, 1.4rem);
         font-weight: bold;
         cursor: pointer;
         transition: all 0.25s ease-in-out;
         user-select: none;
+        color: var(--text-color);
       }
       .cell:hover {
-        background: rgba(255, 255, 255, 0.07);
+        background: var(--glass-border);
         transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 5px 15px var(--shadow-color);
       }
 
       /* Removed .cell.X and .cell.O as it's not XO anymore */
@@ -302,31 +339,31 @@
         /* New style for currently selected letters */
         background: linear-gradient(
           135deg,
-          rgba(0, 242, 254, 0.6) 0%,
-          rgba(0, 242, 254, 0.1) 50%,
-          rgba(0, 242, 254, 0.4) 100%
+          color-mix(in srgb, var(--accent-cyan) 60%, transparent) 0%,
+          color-mix(in srgb, var(--accent-cyan) 10%, transparent) 50%,
+          color-mix(in srgb, var(--accent-cyan) 40%, transparent) 100%
         );
-        border-color: #00f2fe;
-        color: #fff;
-        text-shadow: 0 0 12px #00f2fe;
+        border-color: var(--accent-cyan);
+        color: var(--text-color);
+        text-shadow: 0 0 12px var(--accent-cyan);
         box-shadow:
-          inset 0 0 20px rgba(0, 242, 254, 0.5),
-          0 0 15px rgba(0, 242, 254, 0.3);
+          inset 0 0 20px color-mix(in srgb, var(--accent-cyan) 50%, transparent),
+          0 0 15px color-mix(in srgb, var(--accent-cyan) 30%, transparent);
       }
       .cell.found-word {
         /* Style for letters of a found word */
         background: linear-gradient(
           135deg,
-          rgba(255, 0, 127, 0.6) 0%,
-          rgba(255, 0, 127, 0.2) 50%,
-          rgba(255, 0, 127, 0.5) 100%
+          color-mix(in srgb, var(--accent-pink) 60%, transparent) 0%,
+          color-mix(in srgb, var(--accent-pink) 20%, transparent) 50%,
+          color-mix(in srgb, var(--accent-pink) 50%, transparent) 100%
         );
-        border-color: #ff007f;
-        color: #fff;
-        text-shadow: 0 0 12px #ff007f;
+        border-color: var(--accent-pink);
+        color: var(--text-color);
+        text-shadow: 0 0 12px var(--accent-pink);
         box-shadow:
-          inset 0 0 20px rgba(255, 0, 127, 0.5),
-          0 0 15px rgba(255, 0, 127, 0.3);
+          inset 0 0 20px color-mix(in srgb, var(--accent-pink) 50%, transparent),
+          0 0 15px color-mix(in srgb, var(--accent-pink) 30%, transparent);
         animation: pulseWinning 1s infinite alternate;
       }
 
@@ -335,27 +372,31 @@
         padding: 12px 30px;
         font-size: 1.1rem;
         background: transparent;
-        color: #00f2fe;
-        border: 2px solid #00f2fe;
+        color: var(--accent-cyan);
+        border: 2px solid var(--accent-cyan);
         border-radius: 30px;
         cursor: pointer;
         transition: all 0.3s ease;
-        box-shadow: 0 0 10px rgba(0, 242, 254, 0.2);
+        box-shadow: 0 0 10px
+          color-mix(in srgb, var(--accent-cyan) 20%, transparent);
       }
       .reset-btn:hover {
-        background: #00f2fe;
+        background: var(--accent-cyan);
         color: #0f0f1a;
-        box-shadow: 0 0 20px rgba(0, 242, 254, 0.6);
+        box-shadow: 0 0 20px
+          color-mix(in srgb, var(--accent-cyan) 60%, transparent);
         transform: translateY(-2px);
       }
       @keyframes pulseWinning {
         from {
-          transform: scale(1);
-          box-shadow: 0 0 10px rgba(255, 0, 127, 0.3);
+          transform: scale(1); /* Adjusted for found words */
+          box-shadow: 0 0 10px
+            color-mix(in srgb, var(--accent-pink) 30%, transparent);
         } /* Adjusted for found words */
         to {
           transform: scale(1.05);
-          box-shadow: 0 0 25px rgba(255, 0, 127, 0.6);
+          box-shadow: 0 0 25px
+            color-mix(in srgb, var(--accent-pink) 60%, transparent);
         }
       }
       @keyframes fadeInDown {
@@ -433,17 +474,22 @@
         top: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(0, 0, 0, 0.85);
+        background-color: color-mix(
+          in srgb,
+          var(--shadow-color) 85%,
+          transparent
+        );
         backdrop-filter: blur(5px);
       }
       .modal-content {
-        background: #1a1a2e;
+        background: var(--bg-gradient);
         margin: 10% auto;
         padding: 20px;
-        border: 1px solid #00f2fe;
+        border: 1px solid var(--accent-cyan);
         border-radius: 20px;
         width: min(400px, 90%);
-        box-shadow: 0 0 30px rgba(0, 242, 254, 0.2);
+        box-shadow: 0 0 30px
+          color-mix(in srgb, var(--accent-cyan) 20%, transparent);
         text-align: center;
       }
       .leaderboard-list {
@@ -458,19 +504,19 @@
         align-items: center;
         justify-content: space-between;
         padding: 10px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        border-bottom: 1px solid var(--glass-border);
       }
       .leaderboard-item img {
         width: 35px;
         height: 35px;
         border-radius: 50%;
-        border: 1px solid #00f2fe;
+        border: 1px solid var(--accent-cyan);
       }
       .close-modal {
         float: left;
         font-size: 1.5rem;
         cursor: pointer;
-        color: #ff007f;
+        color: var(--accent-pink);
       }
     </style>
   </head>
@@ -484,14 +530,14 @@
       <div
         class="mode-option"
         id="hintBtn"
-        style="border-color: #ffea00; color: #ffea00"
+        style="border-color: var(--accent-yellow); color: var(--accent-yellow)"
       >
         تلميحة 💡
       </div>
       <div
         class="mode-option"
         id="showLeaderboardBtn"
-        style="border-color: #00f2fe; color: #00f2fe"
+        style="border-color: var(--accent-cyan); color: var(--accent-cyan)"
       >
         الأوائل 🏆
       </div>
@@ -512,7 +558,11 @@
       <div
         class="mode-option"
         id="installBtn"
-        style="display: none; border-color: #00f2fe; color: #00f2fe"
+        style="
+          display: none;
+          border-color: var(--accent-cyan);
+          color: var(--accent-cyan);
+        "
       >
         تثبيت اللعبة 📱
       </div>
@@ -522,12 +572,24 @@
       id="levelIndicator"
       style="
         margin-bottom: 10px;
-        color: #00f2fe;
+        color: var(--accent-cyan);
         font-weight: bold;
         font-size: 1.3rem;
       "
     >
       المستوى: <span id="currentLevelNum">1</span> / 100
+    </div>
+
+    <div
+      id="intersectionsIndicator"
+      style="
+        margin-bottom: 10px;
+        color: var(--accent-yellow);
+        font-weight: bold;
+        font-size: 1.1rem;
+      "
+    >
+      التقاطعات المكتشفة: <span id="intersectionsCount">0</span>
     </div>
 
     <div class="words-to-find">
@@ -545,8 +607,8 @@
         id="timerDisplay"
         style="
           margin-bottom: 15px;
-          font-weight: bold;
-          color: #ff007f;
+          font-weight: bold; /* Keep bold */
+          color: var(--accent-pink);
           font-size: 1.2rem;
         "
       >
@@ -560,11 +622,21 @@
       <button class="reset-btn" id="resetBtn">إعادة اللعب ↻</button>
     </div>
 
+    <!-- رابط سياسة الخصوصية في التذييل -->
+    <footer style="margin-top: 20px; font-size: 0.8rem; opacity: 0.7">
+      <a
+        href="privacy.html"
+        target="_blank"
+        style="color: var(--accent-cyan); text-decoration: none"
+        >سياسة الخصوصية</a
+      >
+    </footer>
+
     <!-- نافذة لوحة المتصدرين -->
     <div id="leaderboardModal" class="modal">
       <div class="modal-content">
         <span class="close-modal" id="closeLeaderboard">&times;</span>
-        <h2 style="color: #00f2fe">أبطال التحدي 🏆</h2>
+        <h2 style="color: var(--accent-cyan)">أبطال التحدي 🏆</h2>
         <ul id="leaderboardEntries" class="leaderboard-list"></ul>
       </div>
     </div>
@@ -573,6 +645,10 @@
     <audio
       id="winSound"
       src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3"
+    ></audio>
+    <audio
+      id="intersectSound"
+      src="https://assets.mixkit.co/active_storage/sfx/1103/1103-preview.mp3"
     ></audio>
     <audio
       id="loseSound"
@@ -685,7 +761,7 @@
       function loadRewardedVideoAd() {
         if (typeof FBInstant === "undefined" || !fbGameStarted) return;
 
-        FBInstant.getRewardedVideoAsync("YOUR_AD_UNIT_ID") // استبدل YOUR_AD_UNIT_ID بمعرف الإعلان من لوحة تحكم فيسبوك
+        FBInstant.getRewardedVideoAsync("YOUR_PLACEMENT_ID") // استبدل YOUR_PLACEMENT_ID بمعرف موضع الإعلان (Placement ID)
           .then((ad) => {
             rewardedVideoAd = ad;
             return rewardedVideoAd.loadAsync();
@@ -728,6 +804,7 @@
       const winSound = document.getElementById("winSound");
       const loseSound = document.getElementById("loseSound");
       const clickSound = document.getElementById("clickSound");
+      const intersectSound = document.getElementById("intersectSound");
 
       // إصلاح: تعريف متغيرات الأرقام القياسية المفقودة
       let highScores = { X: 0, O: 0, draws: 0 };
@@ -889,7 +966,7 @@
         "بقر",
         "ثور",
         "حمار",
-        "بغض",
+        "بغل",
         "كنغر",
         "بطريق",
         "نعامة",
@@ -1197,6 +1274,7 @@
       let targetWords = [];
       let foundWords = [];
       let grid = []; // 1D array representing the grid letters
+      let intersectionsCount = 0;
       let currentSelection = "";
       let currentPath = []; // Stores indices of selected cells
       let isGameActive = false; // Game starts inactive until "Start" is clicked
@@ -1276,7 +1354,8 @@
             }
 
             const index = r * size + c;
-            if (currentGrid[index] !== "") {
+            // يسمح بوضع الحرف إذا كانت الخلية فارغة أو إذا كان الحرف الموجود مطابقاً للحرف الحالي
+            if (currentGrid[index] !== "" && currentGrid[index] !== word[i]) {
               canPlace = false;
               break;
             }
@@ -1296,6 +1375,9 @@
       function initBoard() {
         resetTimer();
         foundWords = [];
+        intersectionsCount = 0;
+        document.getElementById("intersectionsCount").textContent =
+          intersectionsCount;
         currentSelection = "";
         currentPath = [];
         currentLevel = levels[currentLevelIndex]; // تحديث المستوى الحالي
@@ -1319,42 +1401,47 @@
         // Initialize empty grid
         grid = Array(currentLevel.gridSize * currentLevel.gridSize).fill("");
         window.placedWordPaths = {}; // To store paths for hints
-        let placedWords = [];
-        let wordsToTry = [...currentLevel.words];
+        targetWords = []; // Reset targetWords for the new level
 
         // Place target words
-        for (let word of wordsToTry) {
+        for (let word of currentLevel.words) {
+          // Iterate through the original words for the level
           const path = placeWord(word, grid, currentLevel.gridSize);
           if (path) {
             window.placedWordPaths[word] = path;
-            placedWords.push(word);
+            targetWords.push(word); // Only add to targetWords if successfully placed
           } else {
-            // محاولة وضع كلمة بديلة أقصر إذا فشلت الكلمة الأصلية لضمان عدم خلو المستوى من الكلمات
-            const fallbackWord = fullWordBank
-              .filter((w) => w.length < currentLevel.gridSize)
-              .sort(() => 0.5 - Math.random())[0];
-            const fallbackPath = placeWord(
-              fallbackWord,
-              grid,
-              currentLevel.gridSize,
+            console.warn(
+              `Could not place word: "${word}" in grid size ${currentLevel.gridSize}. This word will not be part of the current level.`,
             );
-            if (fallbackPath) {
-              window.placedWordPaths[fallbackWord] = fallbackPath;
-              placedWords.push(fallbackWord);
-            }
           }
         }
 
-        // إذا فشل النظام في وضع أي كلمة، نضع كلمة واحدة على الأقل لضمان عمل المستوى
-        if (placedWords.length === 0 && wordsToTry.length > 0) {
-          const firstWord = wordsToTry[0];
-          const path = placeWord(firstWord, grid, currentLevel.gridSize);
-          if (path) {
-            window.placedWordPaths[firstWord] = path;
-            placedWords.push(firstWord);
+        // Safeguard: If no words were placed at all (e.g., all original words were too long or couldn't fit),
+        // try to place at least one short word to make the level playable.
+        if (targetWords.length === 0) {
+          const shortFallbackWord = fullWordBank.find(
+            (w) => w.length <= currentLevel.gridSize && w.length > 0,
+          );
+          if (shortFallbackWord) {
+            const path = placeWord(
+              shortFallbackWord,
+              grid,
+              currentLevel.gridSize,
+            );
+            if (path) {
+              window.placedWordPaths[shortFallbackWord] = path;
+              targetWords.push(shortFallbackWord);
+              console.warn(
+                `No original words could be placed. Added fallback word: "${shortFallbackWord}" to make the level playable.`,
+              );
+            } else {
+              console.error(
+                "Could not place any word, even a short fallback. Level might be unplayable.",
+              );
+            }
           }
         }
-        targetWords = placedWords; // الاحتفاظ فقط بالكلمات التي تم وضعها بنجاح
 
         // Fill remaining empty cells with random letters
         for (let i = 0; i < grid.length; i++) {
@@ -1397,7 +1484,7 @@
       }
 
       function handleLetterClick(cell, index) {
-        if (!isGameActive || foundWords.includes(currentSelection)) return; // Prevent clicking if game not active or word already found
+        if (!isGameActive) return; // Prevent clicking if game not active
 
         // If this cell is already part of a found word, ignore click
         if (cell.classList.contains("found-word")) return;
@@ -1406,61 +1493,91 @@
         // For simplicity, we'll allow non-adjacent clicks for now, but clear selection if not contiguous.
         if (currentPath.length > 0) {
           const lastIndex = currentPath[currentPath.length - 1];
-          const lastRow = Math.floor(lastIndex / currentLevel.gridSize);
-          const lastCol = lastIndex % currentLevel.gridSize;
-          const newRow = Math.floor(index / currentLevel.gridSize);
-          const newCol = index % currentLevel.gridSize;
+          const gridSize = currentLevel.gridSize;
+          const lastRow = Math.floor(lastIndex / gridSize);
+          const lastCol = lastIndex % gridSize;
+          const newRow = Math.floor(index / gridSize);
+          const newCol = index % gridSize;
 
           const dr = Math.abs(newRow - lastRow);
           const dc = Math.abs(newCol - lastCol);
 
-          // Allow only horizontal or vertical or diagonal (if enabled) contiguous selection
-          if (
-            !(
-              (dr === 1 && dc === 0) ||
-              (dr === 0 && dc === 1) ||
-              (dr === 1 && dc === 1)
-            )
-          ) {
-            // If not contiguous, clear previous selection and start new
+          // إذا تم النقر على خلية محددة مسبقاً، نقوم بإلغاء التحديد
+          if (currentPath.includes(index)) {
+            const pathIndex = currentPath.indexOf(index);
+            if (pathIndex === currentPath.length - 1) {
+              currentSelection = currentSelection.slice(0, -1);
+              currentPath.pop();
+              cell.classList.remove("selected");
+            } else {
+              for (let i = currentPath.length - 1; i > pathIndex; i--) {
+                boardElement.children[currentPath[i]].classList.remove(
+                  "selected",
+                );
+              }
+              currentPath = currentPath.slice(0, pathIndex + 1);
+              currentSelection = currentSelection.slice(0, pathIndex + 1);
+            }
+            if (currentSelectionDisplay)
+              currentSelectionDisplay.textContent =
+                currentSelection || "ابدأ باختيار الحروف";
+            return;
+          }
+
+          // ميزة المغناطيس: التحقق مما إذا كان النقر في خط مستقيم (أفقي، رأسي، أو مائل بزاوية 45)
+          const isStraightLine =
+            lastRow === newRow || lastCol === newCol || dr === dc;
+
+          if (isStraightLine) {
+            const stepR = Math.sign(newRow - lastRow);
+            const stepC = Math.sign(newCol - lastCol);
+
+            let currR = lastRow;
+            let currC = lastCol;
+
+            // جذب وتحديد الحروف في المسار
+            while (currR !== newRow || currC !== newCol) {
+              currR += stepR;
+              currC += stepC;
+              const currIdx = currR * gridSize + currC;
+
+              if (currIdx < 0 || currIdx >= boardElement.children.length) break;
+
+              const currCell = boardElement.children[currIdx];
+
+              if (
+                !currentPath.includes(currIdx) &&
+                !currCell.classList.contains("found-word")
+              ) {
+                currentSelection += currCell.textContent;
+                currentPath.push(currIdx);
+                currCell.classList.add("selected");
+                clickSound.currentTime = 0;
+                clickSound.play().catch(() => {});
+              }
+            }
+          } else {
+            // إذا لم يكن في خط مستقيم، نبدأ تحديداً جديداً من الخلية الحالية
             triggerShake();
             clearCurrentSelection();
+            // سيستمر الكود بالأسفل لإضافة الخلية الحالية كبداية جديدة
           }
         }
 
-        // If cell is already selected, deselect it
-        if (currentPath.includes(index)) {
-          const pathIndex = currentPath.indexOf(index);
-          // If it's the last selected, just pop it
-          if (pathIndex === currentPath.length - 1) {
-            currentSelection = currentSelection.slice(0, -1);
-            currentPath.pop();
-            cell.classList.remove("selected");
-          } else {
-            // If it's an earlier selected cell, clear everything after it
-            for (let i = currentPath.length - 1; i > pathIndex; i--) {
-              boardElement.children[currentPath[i]].classList.remove(
-                "selected",
-              );
-            }
-            currentPath = currentPath.slice(0, pathIndex + 1);
-            currentSelection = currentSelection.slice(0, pathIndex + 1);
+        // نتحقق مما إذا كانت الخلية قد أضيفت بالفعل (بواسطة ميزة المغناطيس مثلاً) لتجنب التكرار
+        if (!currentPath.includes(index)) {
+          // Start timer on first valid selection
+          if (currentSelection === "" && currentPath.length === 0) {
+            startTimer();
           }
-          document.getElementById("currentSelectionDisplay").textContent =
-            currentSelection || "ابدأ باختيار الحروف";
-          return;
+
+          currentSelection += cell.textContent;
+          currentPath.push(index);
+          cell.classList.add("selected");
+          clickSound.currentTime = 0; // إعادة ضبط الصوت لضمان العمل مع النقر السريع
+          clickSound.play().catch(() => {});
         }
 
-        // Start timer on first valid selection
-        if (currentSelection === "" && currentPath.length === 0) {
-          startTimer();
-        }
-
-        currentSelection += cell.textContent;
-        currentPath.push(index);
-        cell.classList.add("selected");
-        clickSound.currentTime = 0; // إعادة ضبط الصوت لضمان العمل مع النقر السريع
-        clickSound.play().catch(() => {});
         if (currentSelectionDisplay)
           currentSelectionDisplay.textContent =
             currentSelection || "ابدأ باختيار الحروف";
@@ -1471,6 +1588,12 @@
 
         if (foundWordIndex !== -1) {
           const foundWord = targetWords[foundWordIndex];
+
+          // التحقق مما إذا كانت الكلمة تتقاطع مع كلمات مكتشفة سابقاً
+          const isIntersecting = currentPath.some((idx) =>
+            boardElement.children[idx].classList.contains("found-word"),
+          );
+
           foundWords.push(foundWord);
           targetWords.splice(foundWordIndex, 1); // إزالة الكلمة من القائمة المطلوبة
 
@@ -1486,10 +1609,39 @@
             .classList.add("found");
 
           confetti({ particleCount: 100, spread: 70 });
-          winSound.currentTime = 0; // إعادة ضبط صوت الفوز
-          winSound.play().catch(() => {});
+          if (isIntersecting) {
+            intersectionsCount++;
+            document.getElementById("intersectionsCount").textContent =
+              intersectionsCount;
+            intersectSound.currentTime = 0;
+            intersectSound.play().catch(() => {});
+          } else {
+            winSound.currentTime = 0; // إعادة ضبط صوت الفوز
+            winSound.play().catch(() => {});
+          }
+
+          const encouragingMessages = [
+            "رائع!",
+            "أحسنت!",
+            "مذهل!",
+            "عمل جيد!",
+            "استمر!",
+            "عبقري!",
+            "بطل!",
+          ];
+          const randomMsg =
+            encouragingMessages[
+              Math.floor(Math.random() * encouragingMessages.length)
+            ];
 
           clearCurrentSelection();
+
+          if (targetWords.length > 0) {
+            statusBox.innerHTML = `<span id="currentSelectionDisplay" style="color: #ffea00">${randomMsg} وجدت كلمة: ${foundWord}</span>`;
+            currentSelectionDisplay = document.getElementById(
+              "currentSelectionDisplay",
+            );
+          }
 
           if (targetWords.length === 0) {
             stopTimer();
@@ -1633,7 +1785,7 @@
                                 <img src="${entry.getPlayer().getPhoto()}" alt="">
                                 <span>${entry.getPlayer().getName()}</span>
                             </div>
-                            <span style="color:#ff007f">${time} ثانية</span>
+                            <span style="color:var(--accent-pink)">${time} ثانية</span>
                         `;
               entriesContainer.appendChild(li);
             });
@@ -1711,7 +1863,7 @@
         if (typeof FBInstant !== "undefined") {
           FBInstant.shareAsync({
             intent: "CHALLENGE",
-            image: "https://cdn-icons-png.flaticon.com/512/5260/5260478.png",
+            image: "assets/icons/icon-512.png",
             text: shareText,
             payload: { challengeLevel: currentLevelIndex },
           }).then(() => {
@@ -1791,6 +1943,15 @@
       document.body.prepend(pCanvas);
       const pCtx = pCanvas.getContext("2d");
       let pArray = [];
+      let cyanColor, pinkColor;
+
+      // دالة لتحديث الألوان بناءً على الثيم الحالي (ليلي/نهاري)
+      function updateColors() {
+        const style = getComputedStyle(document.documentElement);
+        cyanColor = style.getPropertyValue("--accent-cyan").trim();
+        pinkColor = style.getPropertyValue("--accent-pink").trim();
+      }
+
       function pInit() {
         pCanvas.width = window.innerWidth;
         pCanvas.height = window.innerHeight;
@@ -1803,7 +1964,7 @@
             size: Math.random() * 2 + 0.5,
             vx: (Math.random() - 0.5) * 0.4,
             vy: (Math.random() - 0.5) * 0.4,
-            color: Math.random() > 0.5 ? "#00f2fe" : "#ff007f",
+            type: Math.random() > 0.5 ? "cyan" : "pink",
           });
         }
       }
@@ -1814,7 +1975,7 @@
           p.y += p.vy;
           if (p.x < 0 || p.x > pCanvas.width) p.vx *= -1;
           if (p.y < 0 || p.y > pCanvas.height) p.vy *= -1;
-          pCtx.fillStyle = p.color;
+          pCtx.fillStyle = p.type === "cyan" ? cyanColor : pinkColor;
           pCtx.globalAlpha = 0.4;
           pCtx.beginPath();
           pCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
@@ -1823,6 +1984,11 @@
         requestAnimationFrame(pAnimate);
       }
       window.addEventListener("resize", pInit);
+      // مستمع لتغيير وضع النظام تلقائياً
+      window
+        .matchMedia("(prefers-color-scheme: light)")
+        .addEventListener("change", updateColors);
+      updateColors();
       pInit();
       pAnimate();
 
