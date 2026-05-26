@@ -21,11 +21,11 @@
     <!-- تأكد من وضع صورة الغلاف في مجلد assets/images -->
     <meta property="og:image" content="assets/images/og-image.jpg" />
     <!-- ضع رابط صورة لعبتك هنا -->
-    <meta property="og:url" content="https://apps.facebook.com/your-game-id" />
+    <meta property="og:url" content="https://apps.facebook.com/APP_ID_HERE" />
     <!-- ضع رابط موقع اللعبة هنا -->
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="ar_AR" />
-    <meta property="fb:app_id" content="1234567890" />
+    <meta property="fb:app_id" content="APP_ID_HERE" />
     <!-- استبدل هذا الرقم بمعرف تطبيقك الحقيقي من فيسبوك -->
     <!-- اختياري: معرف تطبيق فيسبوك -->
 
@@ -970,7 +970,7 @@
       function loadRewardedVideoAd() {
         if (typeof FBInstant === "undefined" || !fbGameStarted) return;
 
-        FBInstant.getRewardedVideoAsync("YOUR_PLACEMENT_ID") // استبدل YOUR_PLACEMENT_ID بمعرف موضع الإعلان (Placement ID)
+        FBInstant.getRewardedVideoAsync("123456789012345_098765432109876") // ضع معرفك هنا
           .then((ad) => {
             rewardedVideoAd = ad;
             return rewardedVideoAd.loadAsync();
@@ -1996,11 +1996,18 @@
       function submitScoreToFB(timeInMs) {
         if (typeof FBInstant === "undefined" || !fbGameStarted) return;
 
-        FBInstant.getLeaderboardAsync("Global_Word_Challenge")
+        // حساب النقاط: كل مستوى يعطي 1000 نقطة + بونص للسرعة (بحد أقصى 300 ثانية)
+        const secondsTaken = Math.floor(timeInMs / 1000);
+        const levelScore = (currentLevelIndex + 1) * 1000;
+        const speedBonus = Math.max(0, 300 - secondsTaken);
+        const finalScore = levelScore + speedBonus;
+
+        // استدعاء لوحة المتصدرين السياقية الجديدة
+        FBInstant.getLeaderboardAsync("Word_Challenge_Friends")
           .then((leaderboard) => {
-            // النتيجة هنا هي الوقت، وبما أن الأقل هو الأفضل نضرب في -1 أو نضبط إعدادات اللوحة في فيسبوك
+            // إرسال النقاط النهائية حيث القيمة الأعلى هي الأفضل
             return leaderboard.setScoreAsync(
-              timeInMs,
+              finalScore,
               JSON.stringify({ level: currentLevelIndex + 1 }),
             );
           })
@@ -2020,13 +2027,14 @@
           return;
         }
 
-        FBInstant.getLeaderboardAsync("Global_Word_Challenge")
+        // جلب البيانات من لوحة المتصدرين السياقية
+        FBInstant.getLeaderboardAsync("Word_Challenge_Friends")
           .then((leaderboard) => leaderboard.getEntriesAsync(10, 0))
           .then((entries) => {
             entriesContainer.innerHTML = "";
 
             entries.forEach((entry, index) => {
-              const time = (entry.getScore() / 1000).toFixed(2);
+              const points = entry.getScore();
               const rank = entry.getRank();
               const player = entry.getPlayer();
               const isMe = player.getID() === FBInstant.player.getID();
@@ -2049,7 +2057,7 @@
                   </div>
                   <div style="text-align:right;">
                   <div style="display:flex; flex-direction:column; align-items:flex-end; gap:5px;">
-                      <div style="color:var(--accent-pink); font-weight:bold; font-size:0.9rem;">${time} ثانية</div>
+                      <div style="color:var(--accent-pink); font-weight:bold; font-size:0.9rem;">${points.toLocaleString()} نقطة</div>
                       ${!isMe ? `<button class="mini-btn challenge-player-btn" style="padding: 2px 8px; font-size: 0.65rem;">تحدي ⚔️</button>` : ""}
                   </div>
               `;
