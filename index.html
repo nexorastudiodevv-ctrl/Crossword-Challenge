@@ -768,6 +768,40 @@
       >
         الوقت: 00:00
       </div>
+      <div
+        id="bestTimeDisplay"
+        style="
+          margin-bottom: 15px;
+          font-weight: bold;
+          color: var(--accent-cyan);
+          font-size: 1rem;
+        "
+      >
+        أفضل وقت: --:--
+      </div>
+
+      <style>
+        /* تأثير التوهج عند كسر الرقم القياسي */
+        @keyframes newRecordGlow {
+          0% {
+            text-shadow: none;
+            transform: scale(1);
+          }
+          50% {
+            text-shadow:
+              0 0 15px var(--accent-yellow),
+              0 0 25px rgba(255, 234, 0, 0.5);
+            transform: scale(1.05);
+          }
+          100% {
+            text-shadow: none;
+            transform: scale(1);
+          }
+        }
+        .new-record-glow {
+          animation: newRecordGlow 1.5s ease-out;
+        }
+      </style>
 
       <div class="board" id="board">
         <!-- الحروف سيتم توليدها برمجياً -->
@@ -1465,10 +1499,59 @@
       function startTimer() {
         if (timerInterval) return;
         startTime = Date.now() - elapsedTime;
+        updateTimerDisplay(); // تحديث العرض فوراً عند البدء
         timerInterval = setInterval(() => {
           elapsedTime = Date.now() - startTime;
           updateTimerDisplay();
-        }, 1000);
+        }, 100); // تحديث كل 100 ملي ثانية لدقة أفضل
+      }
+
+      function getBestTime(levelIndex) {
+        const bestTimes = JSON.parse(
+          localStorage.getItem("wordChallengeBestTimes") || "{}",
+        );
+        return bestTimes[levelIndex];
+      }
+
+      function saveBestTime(levelIndex, time) {
+        const bestTimes = JSON.parse(
+          localStorage.getItem("wordChallengeBestTimes") || "{}",
+        );
+        if (!bestTimes[levelIndex] || time < bestTimes[levelIndex]) {
+          bestTimes[levelIndex] = time;
+          localStorage.setItem(
+            "wordChallengeBestTimes",
+            JSON.stringify(bestTimes),
+          );
+          updateBestTimeDisplay();
+        }
+        // إذا تم تسجيل رقم قياسي جديد، أضف تأثير التوهج
+        if (bestTimes[levelIndex] === time) {
+          const bestTimeDisplay = document.getElementById("bestTimeDisplay");
+          if (bestTimeDisplay) {
+            bestTimeDisplay.classList.add("new-record-glow");
+            setTimeout(
+              () => bestTimeDisplay.classList.remove("new-record-glow"),
+              1500,
+            ); // إزالة التأثير بعد 1.5 ثانية
+          }
+        }
+      }
+
+      function formatTime(ms) {
+        if (!ms) return "--:--";
+        const totalSeconds = Math.floor(ms / 1000);
+        const minutes = Math.floor(totalSeconds / 60)
+          .toString()
+          .padStart(2, "0");
+        const seconds = (totalSeconds % 60).toString().padStart(2, "0");
+        return `${minutes}:${seconds}`;
+      }
+
+      function updateBestTimeDisplay() {
+        const bestTime = getBestTime(currentLevelIndex);
+        const display = document.getElementById("bestTimeDisplay");
+        if (display) display.textContent = `أفضل وقت: ${formatTime(bestTime)}`;
       }
 
       function stopTimer() {
@@ -1561,6 +1644,11 @@
         currentSelection = "";
         currentPath = [];
         currentLevel = levels[currentLevelIndex]; // تحديث المستوى الحالي
+
+        // بدء العداد فوراً إذا كانت اللعبة نشطة
+        if (isGameActive) {
+          startTimer();
+        }
 
         // تمييز ما إذا كان هذا المستوى هو تحدي
         if (urlParams.has("challengeLevel")) {
@@ -1824,7 +1912,12 @@
           }
 
           if (targetWords.length === 0) {
+            elapsedTime = Date.now() - startTime; // حساب الوقت النهائي بدقة
             stopTimer();
+
+            // حفظ أفضل وقت للمستوى الحالي
+            saveBestTime(currentLevelIndex, elapsedTime);
+
             const finalTime =
               document.getElementById("timerDisplay").textContent;
 
@@ -2043,40 +2136,53 @@
       });
 
       document.getElementById("shareFB").addEventListener("click", () => {
-        if (!isGameActive && targetWords.length === 0) {
-          const finalTime = document.getElementById("timerDisplay").textContent;
+        const finalTime = document.getElementById("timerDisplay").textContent;
+        const shareText = `تحدي! لقد وجدت جميع الكلمات المخفية في ${finalTime}! هل يمكنك تحطيم رقمي؟ 🏆`;
+
+        if (isFacebookEnv && fbGameStarted) {
+          // التقاط صورة حقيقية من اللعبة ونشرها
+          FBInstant.takeScreenshotAsync()
+            .then((base64Image) => {
+              FBInstant.shareAsync({
+                intent: "SHARE",
+                image: base64Image,
+                text: shareText,
+                payload: { level: currentLevelIndex },
+              }).then(() => console.log("تم النشر بنجاح"));
+            })
+            .catch((err) => {
+              console.error("فشل التقاط الصورة أو النشر:", err);
+              alert("حدث خطأ أثناء النشر، جرب مرة أخرى.");
+            });
+        } else {
+          // البديل للمتصفح العادي
           const url = encodeURIComponent(window.location.href);
-          const text = encodeURIComponent(
-            `تحدي! لقد وجدت جميع الكلمات المخفية في ${finalTime} فقط! هل يمكنك هزيمة رقمي القياسي؟`,
-          );
+          const text = encodeURIComponent(shareText);
           window.open(
             `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`,
             "_blank",
           );
-        } else {
-          alert("أكمل اللعبة أولاً لمشاركة نتيجتك!");
         }
       });
 
       // منطق زر تحدي صديق
       document.getElementById("inviteBtn").addEventListener("click", () => {
-        const level = currentLevelIndex + 1;
+        // نرسل التحدي للمستوى الحالي الذي يلعب فيه اللاعب الآن
+        const levelToChallenge = currentLevelIndex;
         const shareUrl =
           window.location.origin +
           window.location.pathname +
           "?challengeLevel=" +
-          currentLevelIndex;
+          levelToChallenge;
         const shareText = `أتحدّاك في لعبة "تحدي الكلمات النيون"! هل يمكنك حل المستوى ${level} في وقت أسرع مني؟ 🏆`;
 
         // إذا كان المستخدم داخل بيئة فيسبوك
-        if (typeof FBInstant !== "undefined") {
+        if (isFacebookEnv && fbGameStarted) {
           FBInstant.shareAsync({
             intent: "CHALLENGE",
-            image: "assets/icons/icon-512.png",
+            image: "assets/images/og-image.jpg", // استخدام صورة الغلاف الجذابة
             text: shareText,
             payload: { challengeLevel: currentLevelIndex },
-          }).then(() => {
-            console.log("Invite sent via Facebook");
           });
         }
         // إذا كان المتصفح يدعم مشاركة الروابط (واتساب، تليجرام، إلخ)
@@ -2208,6 +2314,11 @@
       themeToggleBtn.addEventListener("click", () => {
         document.body.classList.toggle("light-mode");
         const isLight = document.body.classList.contains("light-mode");
+
+        // تشغيل صوت النقر
+        clickSound.currentTime = 0;
+        clickSound.play().catch(() => {});
+
         themeToggleBtn.textContent = isLight ? "وضع ليلي 🌙" : "وضع نهاري ☀️";
         localStorage.setItem("theme", isLight ? "light" : "dark");
 
